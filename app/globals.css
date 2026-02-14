@@ -135,6 +135,35 @@ body {
   box-shadow: 0 10px 15px -3px rgba(17, 180, 212, 0.3), 0 4px 6px -4px rgba(17, 180, 212, 0.3) !important;
 }
 
+/* Additional color utilities */
+.text-primary\/10 {
+  color: rgba(17, 180, 212, 0.1) !important;
+}
+
+.hover\:border-primary\/50:hover {
+  border-color: rgba(17, 180, 212, 0.5) !important;
+}
+
+/* Surface/section background color - matches the original surface-dark */
+.bg-surface-dark {
+  background-color: #162a2e !important;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, var(--tw-gradient-stops)) !important;
+}
+
+.from-background-dark {
+  --tw-gradient-from: #101f22 !important;
+  --tw-gradient-to: rgb(16 31 34 / 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.to-card-dark {
+  --tw-gradient-to: #162a2d !important;
+}
+
 /* Custom scrollbar for webkit */
 ::-webkit-scrollbar {
   width: 8px;

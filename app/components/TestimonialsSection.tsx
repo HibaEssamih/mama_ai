@@ -2,11 +2,11 @@ import Image from "next/image";
 
 export default function TestimonialsSection() {
   return (
-    <section className="py-20 bg-card-dark border-y border-gray-800">
+    <section className="py-20 bg-surface-dark border-y border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12">
           <div>
-            <h2 className="text-3xl font-bold mb-2">Voices from the Field</h2>
+            <h2 className="text-3xl font-bold mb-2 text-white">Voices from the Field</h2>
             <p className="text-primary font-medium">Trusted by communities and clinicians alike</p>
           </div>
           {/* Decorative Quotes Icon */}
@@ -25,7 +25,7 @@ export default function TestimonialsSection() {
                 height={64}
               />
               <div>
-                <h4 className="font-bold text-lg">Dr. Okonkwo</h4>
+                <h4 className="font-bold text-lg text-white">Dr. Okonkwo</h4>
                 <p className="text-sm text-primary">Chief Obstetrician, Enugu General</p>
               </div>
             </div>
@@ -45,7 +45,7 @@ export default function TestimonialsSection() {
                 height={64}
               />
               <div>
-                <h4 className="font-bold text-lg">Sarah M.</h4>
+                <h4 className="font-bold text-lg text-white">Sarah M.</h4>
                 <p className="text-sm text-primary">Expectant Mother</p>
               </div>
             </div>

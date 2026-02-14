@@ -8,7 +8,7 @@ export default function HowItWorksSection() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How MamaGuard Works</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white">How MamaGuard Works</h2>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Connecting rural mothers to life-saving care through simple voice technology.
           </p>
@@ -27,7 +27,7 @@ export default function HowItWorksSection() {
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm border-4 border-background-dark">1</span>
                 <span className="material-icons-round text-4xl text-primary">mic</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Mother Reports</h3>
+              <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">Mother Reports</h3>
               <p className="text-gray-500 dark:text-gray-400 text-sm px-4">
                 Voice message describing symptoms sent simply via WhatsApp.
               </p>
@@ -39,7 +39,7 @@ export default function HowItWorksSection() {
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-card-dark text-primary border border-primary/30 rounded-full flex items-center justify-center font-bold text-sm border-4 border-background-dark">2</span>
                 <span className="material-icons-round text-4xl text-primary">psychology</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">System Analyzes</h3>
+              <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">System Analyzes</h3>
               <p className="text-gray-500 dark:text-gray-400 text-sm px-4">
                 AI instantly processes language and flags danger signs.
               </p>
@@ -51,7 +51,7 @@ export default function HowItWorksSection() {
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-card-dark text-primary border border-primary/30 rounded-full flex items-center justify-center font-bold text-sm border-4 border-background-dark">3</span>
                 <span className="material-icons-round text-4xl text-primary">notifications_active</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Doctor Alerted</h3>
+              <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">Doctor Alerted</h3>
               <p className="text-gray-500 dark:text-gray-400 text-sm px-4">
                 Clinicians view priority cases on a real-time dashboard.
               </p>
@@ -63,7 +63,7 @@ export default function HowItWorksSection() {
                 <span className="absolute -top-2 -right-2 w-8 h-8 bg-card-dark text-primary border border-primary/30 rounded-full flex items-center justify-center font-bold text-sm border-4 border-background-dark">4</span>
                 <span className="material-icons-round text-4xl text-primary">family_restroom</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Family Notified</h3>
+              <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">Family Notified</h3>
               <p className="text-gray-500 dark:text-gray-400 text-sm px-4">
                 Automated guidance sent to family and transport dispatched.
               </p>
