@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useRouter } from "next/navigation";
 import {
   PatientActionBar,
@@ -21,14 +22,14 @@ import {
 } from "@/lib/mockPatientData";
 
 interface PatientProfilePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function PatientProfilePage({ params }: PatientProfilePageProps) {
   const router = useRouter();
-  const patientId = params.id;
+  const { id: patientId } = use(params);
 
   // TODO: Fetch real patient data based on patientId
   // For now, using mock data

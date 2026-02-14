@@ -106,6 +106,26 @@ export interface PatientProfile {
   assignedDoctor: string;
 }
 
+// Patient Management Types
+export interface PatientManagementCard {
+  id: string;
+  patientId: string;
+  name: string;
+  age: number;
+  avatarUrl?: string;
+  initials?: string;
+  avatarColor?: string;
+  status: "high-risk" | "stable" | "monitor" | "due-soon";
+  gestationalWeek: number;
+  trimester: 1 | 2 | 3 | "overdue";
+  aiAnalysis: string;
+  assignedCareTeam: {
+    initials: string;
+    name: string;
+  }[];
+  progressPercent: number;
+}
+
 export interface VitalSign {
   label: string;
   value: string;

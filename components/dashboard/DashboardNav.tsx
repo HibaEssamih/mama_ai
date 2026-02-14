@@ -11,8 +11,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", icon: "dashboard", label: "Dashboard" },
-  { href: "/dashboard/patients", icon: "monitor_heart", label: "Patient Monitoring" },
-  { href: "/dashboard/patients/list", icon: "groups", label: "Patient List" },
+  { href: "/dashboard/patients", icon: "groups", label: "Patient List" },
   { href: "/dashboard/analytics", icon: "bar_chart", label: "Analytics" },
 ];
 
