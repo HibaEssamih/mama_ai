@@ -3,11 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, Search, Plus, X } from "lucide-react";
+import {
+  Bell,
+  Plus,
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Command,
+  RefreshCw,
+  Clock,
+  ChevronDown,
+} from "lucide-react";
 import type { DashboardStats } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -20,287 +29,290 @@ interface DashboardHeaderProps {
   stats: DashboardStats;
 }
 
-interface StatItemProps {
-  label: string;
-  value: number;
-  color: string;
-  isPulsing?: boolean;
-  onClick?: () => void;
-}
-
 interface Notification {
   id: string;
   title: string;
   message: string;
   time: string;
-  type: "critical" | "warning" | "info";
+  type: "critical" | "warning";
   read: boolean;
+  patientId?: string;
 }
 
 const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "1",
     title: "Critical Alert",
-    message: "Sarah Williams BP spike detected - 165/95",
+    message: "Sarah Williams - BP spike 165/95 mmHg",
     time: "2m ago",
     type: "critical",
     read: false,
+    patientId: "p-001",
   },
   {
     id: "2",
     title: "Warning Threshold",
-    message: "Maria Garcia movement anomaly pattern",
+    message: "Maria Garcia - Reduced fetal movement",
     time: "15m ago",
     type: "warning",
     read: false,
-  },
-  {
-    id: "3",
-    title: "System Update",
-    message: "AI model updated successfully",
-    time: "1h ago",
-    type: "info",
-    read: true,
+    patientId: "p-002",
   },
 ];
 
-function StatItem({
-  label,
-  value,
-  color,
-  isPulsing = false,
-  onClick,
-}: StatItemProps) {
-  const isClickable = !!onClick;
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={!isClickable}
-      className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors disabled:hover:bg-transparent disabled:cursor-default group"
-      aria-label={
-        isClickable
-          ? `Filter by ${label.toLowerCase()} patients, ${value} patients`
-          : undefined
-      }
-    >
-      <div
-        className={`w-2.5 h-2.5 rounded-full ${color} ${isPulsing ? "animate-pulse" : ""}`}
-        role="presentation"
-        aria-hidden="true"
-      />
-      <div className="text-left">
-        <div className="text-xs text-muted-foreground font-medium">{label}</div>
-        <div className="text-xl font-semibold text-foreground leading-none mt-0.5">
-          {value}
-        </div>
-      </div>
-    </button>
-  );
-}
-
 export default function DashboardHeader({ stats }: DashboardHeaderProps) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.read).length;
+  const clinicalAlerts = MOCK_NOTIFICATIONS;
+  const unreadCount = clinicalAlerts.filter((n) => !n.read).length;
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery)}`);
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    setIsRefreshing(false);
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    if (notification.patientId) {
+      setShowNotifications(false);
+      router.push(`/dashboard/patients/${notification.patientId}`);
     }
   };
 
-  const handleStatClick = (filter: string) => {
-    router.push(`/dashboard?filter=${filter}`);
-  };
-
-  const handleNotificationAction = (notificationId: string, action: string) => {
-    console.log(`Action ${action} on notification:`, notificationId);
-    setShowNotifications(false);
-    router.push("/dashboard");
-  };
-
-  const dismissNotification = (notificationId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log("Dismiss notification:", notificationId);
+  const handleQuickSearch = () => {
+    const event = new KeyboardEvent("keydown", {
+      key: "k",
+      metaKey: true,
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
   };
 
   return (
-    <header className="h-16 px-6 flex items-center justify-between bg-card border-b shrink-0">
-      {/* Search */}
-      <div className="flex-1 max-w-xl">
-        <form onSubmit={handleSearch} className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search patients..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-9 h-10 bg-background/50"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </form>
+    <header
+      className="h-16 px-6 flex items-center justify-between bg-white border-b border-slate-200 shrink-0"
+      role="banner"
+    >
+      {/* ========== LEFT: Patient Statistics ========== */}
+      <div className="flex items-center gap-6">
+        {/* Critical Patients */}
+        <button
+          onClick={() => router.push("/dashboard?filter=critical")}
+          className="flex items-center gap-3 group"
+          aria-label={`${stats.critical} critical patients`}
+        >
+          <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
+            <AlertCircle className="h-5 w-5 text-red-600" aria-hidden="true" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500 font-medium">Critical</div>
+            <div className="text-xl font-bold text-slate-900">{stats.critical}</div>
+          </div>
+        </button>
+
+        <Separator orientation="vertical" className="h-10 bg-slate-200" />
+
+        {/* Warning Patients */}
+        <button
+          onClick={() => router.push("/dashboard?filter=warning")}
+          className="flex items-center gap-3 group"
+          aria-label={`${stats.warning} warning patients`}
+        >
+          <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+            <AlertTriangle className="h-5 w-5 text-amber-600" aria-hidden="true" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500 font-medium">Warning</div>
+            <div className="text-xl font-bold text-slate-900">{stats.warning}</div>
+          </div>
+        </button>
+
+        <Separator orientation="vertical" className="h-10 bg-slate-200" />
+
+        {/* Stable Patients */}
+        <button
+          onClick={() => router.push("/dashboard?filter=stable")}
+          className="hidden lg:flex items-center gap-3 group"
+          aria-label={`${stats.stable} stable patients`}
+        >
+          <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500 font-medium">Stable</div>
+            <div className="text-xl font-bold text-slate-900">{stats.stable}</div>
+          </div>
+        </button>
       </div>
 
-      {/* Stats & Actions */}
-      <div className="flex items-center gap-6 ml-6">
-        {/* Stats Display */}
-        <div className="hidden lg:flex items-center gap-1 border-r pr-6">
-          <StatItem
-            label="Critical"
-            value={stats.critical}
-            color="bg-red-500"
-            isPulsing
-            onClick={() => handleStatClick("critical")}
-          />
-          <StatItem
-            label="Warning"
-            value={stats.warning}
-            color="bg-amber-500"
-            onClick={() => handleStatClick("warning")}
-          />
-          <StatItem
-            label="Stable"
-            value={stats.stable}
-            color="bg-emerald-500"
-            onClick={() => handleStatClick("stable")}
-          />
-        </div>
+      {/* ========== RIGHT: Actions ========== */}
+      <div className="flex items-center gap-3">
+        {/* Quick Search */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleQuickSearch}
+          className="hidden md:flex items-center gap-2 h-9 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
+        >
+          <Command className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="text-sm">Search</span>
+          <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 h-5 text-[10px] font-mono bg-slate-100 border border-slate-200 rounded text-slate-600">
+            ⌘K
+          </kbd>
+        </Button>
 
-        {/* Quick Actions */}
-        <div className="flex items-center gap-3">
-          <Button asChild size="sm" className="gap-2">
-            <Link href="/dashboard/patients/new">
-              <Plus className="h-4 w-4" />
-              <span className="hidden xl:inline">New Patient</span>
-            </Link>
-          </Button>
+        {/* Refresh */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="h-9 w-9 p-0 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
+          aria-label="Refresh data"
+        >
+          <RefreshCw
+            className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+            aria-hidden="true"
+          />
+        </Button>
 
-          {/* Notifications */}
-          <Popover open={showNotifications} onOpenChange={setShowNotifications}>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] font-semibold"
-                  >
-                    {unreadCount}
-                  </Badge>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-96 p-0" align="end">
-              <div className="flex items-center justify-between p-4 border-b">
-                <h3 className="font-semibold">Notifications</h3>
+        <Separator orientation="vertical" className="h-6 bg-slate-200" />
+
+        {/* Add Patient */}
+        <Button asChild size="sm" className="h-9 gap-2">
+          <Link href="/dashboard/patients/new">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Add Patient</span>
+          </Link>
+        </Button>
+
+        {/* Notifications */}
+        <Popover open={showNotifications} onOpenChange={setShowNotifications}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="relative h-9 w-9 p-0 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
+              aria-label={`${unreadCount} unread notifications`}
+            >
+              <Bell className="h-4 w-4" aria-hidden="true" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 flex items-center justify-center text-[10px] font-bold bg-red-600 text-white rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent
+            className="w-96 p-0 border-slate-200"
+            align="end"
+            sideOffset={12}
+          >
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-sm text-slate-900">
+                    Clinical Alerts
+                  </h3>
+                  {unreadCount > 0 && (
+                    <Badge className="h-5 px-2 text-[10px] bg-red-600 hover:bg-red-700">
+                      {unreadCount} new
+                    </Badge>
+                  )}
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs h-auto py-1 px-2"
+                  className="h-7 text-xs text-slate-600 hover:text-slate-900"
+                  asChild
                 >
-                  Mark all read
+                  <Link href="/dashboard/notifications">View All</Link>
                 </Button>
               </div>
+            </div>
 
-              <ScrollArea className="h-[400px]">
-                {MOCK_NOTIFICATIONS.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center p-8 text-center">
-                    <Bell className="h-12 w-12 text-muted-foreground/30 mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      No notifications
-                    </p>
+            {/* Alerts List */}
+            <ScrollArea className="max-h-96">
+              {clinicalAlerts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
+                    <CheckCircle2
+                      className="h-6 w-6 text-emerald-600"
+                      aria-hidden="true"
+                    />
                   </div>
-                ) : (
-                  <div className="divide-y">
-                    {MOCK_NOTIFICATIONS.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-4 hover:bg-accent/50 transition-colors ${
-                          !notification.read ? "bg-accent/20" : ""
-                        }`}
+                  <h4 className="font-semibold text-sm text-slate-900 mb-1">
+                    All Clear
+                  </h4>
+                  <p className="text-xs text-slate-600">
+                    No critical alerts at this time
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  {clinicalAlerts.map((alert, index) => (
+                    <div key={alert.id}>
+                      <button
+                        onClick={() => handleNotificationClick(alert)}
+                        className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors"
                       >
-                        <div className="flex items-start gap-3">
-                          <div
-                            className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                              notification.type === "critical"
-                                ? "bg-red-500"
-                                : notification.type === "warning"
-                                  ? "bg-amber-500"
-                                  : "bg-blue-500"
-                            }`}
-                          />
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="font-semibold text-sm">
-                                {notification.title}
+                        <div className="flex gap-3">
+                          {/* Icon */}
+                          <div className="shrink-0 mt-0.5">
+                            {alert.type === "critical" ? (
+                              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                <AlertCircle
+                                  className="h-4 w-4 text-red-600"
+                                  aria-hidden="true"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                                <AlertTriangle
+                                  className="h-4 w-4 text-amber-600"
+                                  aria-hidden="true"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <span className="font-semibold text-sm text-slate-900">
+                                {alert.title}
                               </span>
-                              {!notification.read && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-5 w-5 p-0 rounded-full"
+                              {!alert.read && (
+                                <span
+                                  className="w-2 h-2 rounded-full bg-red-600 shrink-0 mt-1.5"
+                                  aria-label="Unread"
                                 />
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              {notification.message}
+                            <p className="text-sm text-slate-600 mb-2">
+                              {alert.message}
                             </p>
-                            <div className="flex items-center justify-between pt-1">
-                              <time className="text-xs text-muted-foreground">
-                                {notification.time}
-                              </time>
-                              {(notification.type === "critical" ||
-                                notification.type === "warning") && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-auto py-1 px-2 text-xs"
-                                  onClick={() =>
-                                    handleNotificationAction(
-                                      notification.id,
-                                      "view",
-                                    )
-                                  }
-                                >
-                                  View Patient
-                                </Button>
-                              )}
+                            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                              <Clock className="h-3 w-3" aria-hidden="true" />
+                              <span>{alert.time}</span>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-
-              <Separator />
-              <div className="p-3">
-                <Button
-                  variant="ghost"
-                  className="w-full"
-                  asChild
-                  onClick={() => setShowNotifications(false)}
-                >
-                  <Link href="/dashboard/notifications">
-                    View all notifications
-                  </Link>
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+                      </button>
+                      {index < clinicalAlerts.length - 1 && (
+                        <Separator className="bg-slate-100" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </PopoverContent>
+        </Popover>
       </div>
     </header>
   );
