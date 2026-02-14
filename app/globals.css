@@ -1,12 +1,76 @@
 @import "tailwindcss";
 
-/* CSS Variables */
+/* Theme for Tailwind v4: maps semantic names to CSS variables so shadcn components work */
+@theme inline {
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* CSS Variables (light theme; shadcn + your brand) */
 :root {
   --primary: #11b4d4;
+  --primary-foreground: #ffffff;
+  --background: #f6f8f8;
+  --foreground: #101f22;
+  --card: #ffffff;
+  --card-foreground: #101f22;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #101f22;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #e2e8f0;
+  --accent-foreground: #101f22;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #11b4d4;
+  --radius: 0.625rem;
+  /* Keep your existing names for custom sections */
   --background-light: #f6f8f8;
   --background-dark: #101f22;
   --card-dark: #162a2d;
   --card-light: #ffffff;
+}
+
+.dark {
+  --background: #101f22;
+  --foreground: #f6f8f8;
+  --card: #162a2d;
+  --card-foreground: #f6f8f8;
+  --primary: #11b4d4;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f6f8f8;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f6f8f8;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #334155;
+  --input: #334155;
+  --ring: #11b4d4;
 }
 
 body {
