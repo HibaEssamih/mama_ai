@@ -9,8 +9,9 @@ export interface Patient {
   gestationalWeek: number;
   phone: string;
   location: string;
-  riskLevel: "low" | "medium" | "high";
+  riskLevel: "low" | "medium" | "high" | "critical";
   lastCheckIn?: Date;
+  avatarUrl?: string;
 }
 
 export interface VitalSign {
@@ -50,4 +51,42 @@ export interface CTAFormData {
   email: string;
   phone: string;
   message?: string;
+}
+
+// Dashboard Types
+export type PatientRiskLevel = "critical" | "warning" | "stable" | "normal";
+
+export interface DashboardPatient {
+  id: string;
+  name: string;
+  patientId: string;
+  gestationalWeek: number;
+  avatarUrl: string;
+  riskLevel: PatientRiskLevel;
+  lastUpdate: string; // e.g., "2m ago"
+  alert: {
+    type: "High Risk" | "Moderate" | "Monitor";
+    category: string; // e.g., "BP Spike", "Movement Anomaly"
+    message: string;
+  };
+  metrics: {
+    label: string;
+    value: string | number;
+    trend: "up" | "down" | "stable";
+  }[];
+  trendData?: number[]; // For chart
+}
+
+export interface DashboardStats {
+  critical: number;
+  warning: number;
+  stable: number;
+}
+
+export interface Doctor {
+  id: string;
+  name: string;
+  role: string;
+  avatarUrl: string;
+  email: string;
 }
