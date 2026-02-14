@@ -10,3 +10,4 @@ export { default as VoiceTimeline } from "./VoiceTimeline";
 export { default as RiskTrendChart } from "./RiskTrendChart";
 export { default as EmergencyContactCard } from "./EmergencyContactCard";
 export { default as AIRecommendation } from "./AIRecommendation";
+export { PatientCardImproved } from "./PatientCardImproved";

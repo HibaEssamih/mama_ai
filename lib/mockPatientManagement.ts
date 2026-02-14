@@ -11,6 +11,12 @@ export const mockPatientManagementData: PatientManagementCard[] = [
     gestationalWeek: 34,
     trimester: 3,
     aiAnalysis: "Preeclampsia history detected. BP check overdue by 2 days. Recommend immediate follow-up.",
+    aiKeyPoints: ["BP Overdue: 2 days", "History: Preeclampsia", "Action: Immediate follow-up"],
+    lastActivity: "2h ago",
+    lastActivityTimestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    nextAppointment: "Tomorrow 2pm",
+    phone: "+1-234-567-8901",
+    isOverdue: true,
     assignedCareTeam: [
       { initials: "AS", name: "Dr. A. Smith" },
       { initials: "NJ", name: "Nurse Joy" }
@@ -28,6 +34,12 @@ export const mockPatientManagementData: PatientManagementCard[] = [
     gestationalWeek: 12,
     trimester: 1,
     aiAnalysis: "Vitals consistent. Nutrition plan adherence high (95%). Routine check recommended.",
+    aiKeyPoints: ["Vitals: Normal", "Nutrition: 95% adherence", "Status: On track"],
+    lastActivity: "1 day ago",
+    lastActivityTimestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    nextAppointment: "Next week",
+    phone: "+1-234-567-8902",
+    isOverdue: false,
     assignedCareTeam: [
       { initials: "BJ", name: "Dr. B. Johnson" }
     ],
@@ -43,6 +55,12 @@ export const mockPatientManagementData: PatientManagementCard[] = [
     gestationalWeek: 28,
     trimester: 2,
     aiAnalysis: "Gestational diabetes indicators. Diet adjustment phase. Weekly log required.",
+    aiKeyPoints: ["Condition: GD indicators", "Phase: Diet adjustment", "Follow-up: Weekly"],
+    lastActivity: "5h ago",
+    lastActivityTimestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
+    nextAppointment: "Friday 10am",
+    phone: "+1-234-567-8903",
+    isOverdue: false,
     assignedCareTeam: [
       { initials: "AS", name: "Dr. A. Smith" }
     ],
@@ -59,6 +77,12 @@ export const mockPatientManagementData: PatientManagementCard[] = [
     gestationalWeek: 8,
     trimester: 1,
     aiAnalysis: "First pregnancy. Low risk factors. Ultrasound scheduled for next week.",
+    aiKeyPoints: ["Type: First pregnancy", "Risk: Low", "Next: Ultrasound"],
+    lastActivity: "12h ago",
+    lastActivityTimestamp: new Date(Date.now() - 12 * 60 * 60 * 1000),
+    nextAppointment: "Next week",
+    phone: "+1-234-567-8904",
+    isOverdue: false,
     assignedCareTeam: [
       { initials: "KW", name: "Dr. K. Wilson" }
     ],
@@ -74,6 +98,12 @@ export const mockPatientManagementData: PatientManagementCard[] = [
     gestationalWeek: 41,
     trimester: "overdue",
     aiAnalysis: "Past due date (41 weeks). Induction planned for Tuesday. Monitor fetal movement.",
+    aiKeyPoints: ["Status: Overdue (41w)", "Plan: Induction Tuesday", "Monitor: Fetal movement"],
+    lastActivity: "30min ago",
+    lastActivityTimestamp: new Date(Date.now() - 30 * 60 * 1000),
+    nextAppointment: "Today 4pm",
+    phone: "+1-234-567-8905",
+    isOverdue: true,
     assignedCareTeam: [
       { initials: "BJ", name: "Dr. B. Johnson" }
     ],
@@ -90,6 +120,12 @@ export const mockPatientManagementData: PatientManagementCard[] = [
     gestationalWeek: 16,
     trimester: 2,
     aiAnalysis: "Returning patient. Second child. Standard progression detected.",
+    aiKeyPoints: ["Type: Second child", "Progress: Standard", "Status: Normal"],
+    lastActivity: "3 days ago",
+    lastActivityTimestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    nextAppointment: "Next month",
+    phone: "+1-234-567-8906",
+    isOverdue: false,
     assignedCareTeam: [
       { initials: "KW", name: "Dr. K. Wilson" }
     ],

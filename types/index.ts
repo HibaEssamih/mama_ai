@@ -119,6 +119,12 @@ export interface PatientManagementCard {
   gestationalWeek: number;
   trimester: 1 | 2 | 3 | "overdue";
   aiAnalysis: string;
+  aiKeyPoints?: string[]; // New: condensed key points
+  lastActivity?: string; // New: "2h ago", "3 days ago"
+  lastActivityTimestamp?: Date; // New: for sorting
+  nextAppointment?: string; // New: "Tomorrow 2pm"
+  phone?: string; // New: for quick call
+  isOverdue?: boolean; // New: for filtering
   assignedCareTeam: {
     initials: string;
     name: string;
