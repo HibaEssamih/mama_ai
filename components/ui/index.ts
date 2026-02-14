@@ -11,4 +11,5 @@ export {
   CardAction,
   CardDescription,
 } from "./card";
+export { Alert, AlertTitle, AlertDescription } from "./alert";
 export * from "./LoadingStates";
