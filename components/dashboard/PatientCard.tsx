@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { DashboardPatient } from "@/types";
 
 interface PatientCardProps {
@@ -34,7 +38,43 @@ const RISK_COLORS = {
 } as const;
 
 export default function PatientCard({ patient }: PatientCardProps) {
+  const router = useRouter();
+  const [isCallLoading, setIsCallLoading] = useState(false);
+  const [isDispatchLoading, setIsDispatchLoading] = useState(false);
   const colors = RISK_COLORS[patient.riskLevel];
+
+  const handleCall = async () => {
+    setIsCallLoading(true);
+    try {
+      // TODO: Implement video call functionality
+      console.log("Initiating call with:", patient.name);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      router.push(`/dashboard/call/${patient.id}`);
+    } finally {
+      setIsCallLoading(false);
+    }
+  };
+
+  const handleDispatch = async () => {
+    if (!confirm(`Dispatch emergency services for ${patient.name}? This will alert emergency responders immediately.`)) {
+      return;
+    }
+    
+    setIsDispatchLoading(true);
+    try {
+      // TODO: Implement emergency dispatch
+      console.log("Dispatching emergency services for:", patient.name);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      alert("Emergency services have been dispatched.");
+    } finally {
+      setIsDispatchLoading(false);
+    }
+  };
+
+  const handleSchedule = () => {
+    // Navigate to scheduling page
+    router.push(`/dashboard/patients/${patient.id}/schedule`);
+  };
 
   return (
     <article 
@@ -69,7 +109,7 @@ export default function PatientCard({ patient }: PatientCardProps) {
             <h3 className="font-bold text-slate-900 text-base leading-tight">
               <Link 
                 href={`/dashboard/patients/${patient.id}`}
-                className="hover:text-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 rounded"
+                className="hover:text-sky-600 active:text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 rounded px-1 -mx-1 inline-block transition-colors"
               >
                 {patient.name}
               </Link>
@@ -149,31 +189,48 @@ export default function PatientCard({ patient }: PatientCardProps) {
         {/* Action Buttons */}
         <div className="flex items-center gap-2 justify-end w-full md:w-auto shrink-0 border-t md:border-t-0 pt-3 md:pt-0 mt-2 md:mt-0">
           <button 
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:text-sky-600 hover:border-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:text-sky-600 hover:border-sky-600 active:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             type="button"
+            onClick={handleCall}
+            disabled={isCallLoading}
             aria-label={`Call ${patient.name}`}
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
-              videocam
-            </span>
-            <span>Call</span>
+            {isCallLoading ? (
+              <span className="material-symbols-outlined text-[16px] animate-spin" aria-hidden="true">
+                progress_activity
+              </span>
+            ) : (
+              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                videocam
+              </span>
+            )}
+            <span>{isCallLoading ? "Connecting..." : "Call"}</span>
           </button>
           {patient.riskLevel === "critical" && (
             <button 
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md bg-red-500 text-white text-xs font-semibold hover:bg-red-600 active:bg-red-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               type="button"
+              onClick={handleDispatch}
+              disabled={isDispatchLoading}
               aria-label={`Dispatch emergency services for ${patient.name}`}
             >
-              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
-                emergency
-              </span>
-              <span>Dispatch</span>
+              {isDispatchLoading ? (
+                <span className="material-symbols-outlined text-[16px] animate-spin" aria-hidden="true">
+                  progress_activity
+                </span>
+              ) : (
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                  emergency
+                </span>
+              )}
+              <span>{isDispatchLoading ? "Dispatching..." : "Dispatch"}</span>
             </button>
           )}
           {patient.riskLevel === "warning" && (
             <button 
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-1"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 cursor-pointer"
               type="button"
+              onClick={handleSchedule}
               aria-label={`Schedule appointment for ${patient.name}`}
             >
               <span className="material-symbols-outlined text-[16px]" aria-hidden="true">

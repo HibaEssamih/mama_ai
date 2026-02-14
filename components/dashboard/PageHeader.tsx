@@ -40,16 +40,16 @@ export default function PageHeader({
   const isCompact = variant === "compact";
 
   const getActionStyles = (actionVariant: Action["variant"] = "secondary") => {
-    const base = "px-3 py-1.5 text-sm font-medium rounded transition-colors flex items-center gap-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed";
+    const base = "px-3 py-1.5 text-sm font-medium rounded transition-colors flex items-center gap-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
     
     switch (actionVariant) {
       case "primary":
-        return `${base} text-white bg-sky-500 hover:bg-sky-600 focus:ring-sky-500`;
+        return `${base} text-white bg-sky-500 hover:bg-sky-600 active:bg-sky-700 focus:ring-sky-500`;
       case "danger":
-        return `${base} text-white bg-red-500 hover:bg-red-600 focus:ring-red-500`;
+        return `${base} text-white bg-red-500 hover:bg-red-600 active:bg-red-700 focus:ring-red-500`;
       case "secondary":
       default:
-        return `${base} text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 focus:ring-sky-500`;
+        return `${base} text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 focus:ring-sky-500`;
     }
   };
 
@@ -67,7 +67,7 @@ export default function PageHeader({
                 {crumb.href ? (
                   <Link
                     href={crumb.href}
-                    className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 rounded px-1"
+                    className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 rounded px-1 cursor-pointer"
                   >
                     {crumb.label}
                   </Link>

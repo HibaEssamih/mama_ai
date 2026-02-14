@@ -110,7 +110,7 @@ export default function TriageSection({
             <button
               type="button"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 rounded p-1"
+              className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 rounded p-1 cursor-pointer"
               aria-expanded={!isCollapsed}
               aria-controls={`${id}-content`}
               aria-label={isCollapsed ? `Expand ${title}` : `Collapse ${title}`}
@@ -128,7 +128,7 @@ export default function TriageSection({
 
       {/* Patient List */}
       {(!isCollapsible || !isCollapsed) && (
-        <div id={`${id}-content`}>
+        <div id={`${id}-content`} aria-hidden={false}>
           <PatientList 
             patients={patients}
             emptyMessage={
@@ -144,7 +144,8 @@ export default function TriageSection({
       {isCollapsible && isCollapsed && patientCount > 0 && (
         <div 
           className="text-sm text-slate-500 py-3 px-4 bg-slate-50 rounded-md border border-slate-200"
-          id={`${id}-content`}
+          id={`${id}-content-summary`}
+          aria-hidden={false}
         >
           {patientCount} patient{patientCount !== 1 ? 's' : ''} hidden
         </div>

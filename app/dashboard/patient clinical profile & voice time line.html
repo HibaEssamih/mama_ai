@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MamaGuard - Patient Clinical Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bcdee",
+                        "primary-dark": "#23a9c4",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#101f22",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#182b2f",
+                        "risk-high": "#ef4444",
+                        "risk-med": "#f59e0b",
+                        "risk-low": "#10b981",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for timeline */
+        .timeline-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .dark .timeline-scroll::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }
+        .audio-wave {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 20px;
+        }
+        .audio-bar {
+            width: 3px;
+            background-color: currentColor;
+            border-radius: 99px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { height: 4px; opacity: 0.5; }
+            50% { height: 16px; opacity: 1; }
+        }
+        .audio-bar:nth-child(odd) { animation-duration: 0.8s; }
+        .audio-bar:nth-child(even) { animation-duration: 1.1s; }
+        .audio-bar:nth-child(3n) { animation-duration: 1.3s; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-600 dark:text-slate-300 antialiased min-h-screen flex flex-col">
+<!-- Navbar / Action Bar Header -->
+<header class="bg-surface-light dark:bg-surface-dark border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 text-primary-dark dark:text-primary">
+<span class="material-icons text-xl">health_and_safety</span>
+</div>
+<h1 class="text-xl font-bold text-slate-800 dark:text-white tracking-tight">MamaGuard <span class="font-normal text-slate-400 text-base ml-2">Clinical Portal</span></h1>
+<span class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-2"></span>
+<!-- Breadcrumb / Context -->
+<div class="hidden md:flex items-center text-sm">
+<span class="text-slate-500">Patients</span>
+<span class="material-icons text-slate-400 text-base mx-1">chevron_right</span>
+<span class="text-slate-800 dark:text-white font-medium">Malika Ahmed</span>
+</div>
+</div>
+<!-- Global Actions -->
+<div class="flex items-center gap-3">
+<button class="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-icons text-lg">check_circle_outline</span>
+                    Mark Resolved
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg shadow-sm shadow-primary/30 transition-colors">
+<span class="material-icons text-lg">calendar_today</span>
+                    Schedule
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-risk-high hover:bg-red-600 rounded-lg shadow-sm shadow-red-500/30 transition-colors">
+<span class="material-icons text-lg">warning</span>
+                    Escalate
+                </button>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+<!-- Patient Header Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex items-start md:items-center gap-5">
+<div class="relative">
+<img alt="Portrait of Malika Ahmed" class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-slate-50 dark:border-slate-800 shadow-sm" data-alt="Portrait of a young woman with a headscarf smiling gently" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6p0hKz2f4ixtKXpnbaLZv73DB8iEvQWFHnUNCfPhvHktoccAoqZfs9OB42d5RogSiRzv5B5H5QNHmlMrEbhcB468maaRBv6RHGp-MoG5ZqPDTcWYfr2hS0QiQnn5fembIJ08UxJTpOhE4Pkbldnr5JJGeYCqO4JmaPm3AUyMfkN_pLmBiA0Ql-m2C9mFuaxNhyj9ckLQVP4wy8dFSBDhTrcYvZT91auSY9wKXtFuLRtN_QRo9BEelzasdCKhxTKTW_BLcyq2K-x_U"/>
+<span class="absolute bottom-0 right-0 w-5 h-5 bg-risk-high border-2 border-white dark:border-slate-800 rounded-full"></span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">Malika Ahmed</h2>
+<span class="px-2.5 py-0.5 rounded-full bg-risk-high/10 text-risk-high text-xs font-bold uppercase tracking-wide border border-risk-high/20">High Risk</span>
+</div>
+<div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="material-icons text-lg">cake</span>
+                                28 Years
+                            </div>
+<div class="flex items-center gap-1.5">
+<span class="material-icons text-lg">child_care</span>
+                                Week 32 (Trimester 3)
+                            </div>
+<div class="flex items-center gap-1.5">
+<span class="material-icons text-lg">bloodtype</span>
+                                Blood Type: O+
+                            </div>
+<div class="flex items-center gap-1.5">
+<span class="material-icons text-lg">pin_drop</span>
+                                ID: #MG-8922
+                            </div>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="text-right hidden md:block">
+<p class="text-xs text-slate-400 uppercase font-medium mb-1">Next Checkup</p>
+<p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Oct 24, 2023</p>
+</div>
+<div class="text-right hidden md:block pl-6 border-l border-slate-100 dark:border-slate-700">
+<p class="text-xs text-slate-400 uppercase font-medium mb-1">Assigned Doctor</p>
+<p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Dr. Sarah Johnson</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[600px]">
+<!-- Left Column: Vitals & History -->
+<div class="lg:col-span-3 flex flex-col gap-6 overflow-y-auto pr-1 pb-4">
+<!-- Vitals Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+<span class="material-icons text-primary text-base">monitor_heart</span>
+                        Vitals
+                    </h3>
+<div class="space-y-5">
+<!-- BP -->
+<div class="p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900/30">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Blood Pressure</span>
+<span class="material-icons text-risk-high text-sm">arrow_upward</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-risk-high">140/90</span>
+<span class="text-xs text-slate-500">mmHg</span>
+</div>
+<p class="text-xs text-risk-high mt-1 font-medium">Hypertension Alert</p>
+</div>
+<!-- Weight -->
+<div>
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Weight</span>
+<span class="text-xs font-medium text-primary">+1.5kg</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-slate-800 dark:text-white">72</span>
+<span class="text-xs text-slate-500">kg</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mt-2">
+<div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<!-- Fetal Movement -->
+<div>
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Fetal Movement</span>
+<span class="material-icons text-emerald-500 text-sm">check</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-slate-800 dark:text-white">8</span>
+<span class="text-xs text-slate-500">kicks/hr</span>
+</div>
+<p class="text-xs text-slate-400 mt-1">Normal Range (6-10)</p>
+</div>
+</div>
+</div>
+<!-- Clinical History -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 flex-1">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+<span class="material-icons text-primary text-base">history_edu</span>
+                        Clinical History
+                    </h3>
+<ul class="space-y-3 relative">
+<div class="absolute left-[5px] top-2 bottom-2 w-px bg-slate-200 dark:bg-slate-700"></div>
+<li class="pl-5 relative">
+<span class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-surface-light dark:border-surface-dark"></span>
+<span class="block text-xs text-slate-400 mb-0.5">2021 (Previous Pregnancy)</span>
+<span class="block text-sm font-medium text-slate-700 dark:text-slate-200">Pre-eclampsia diagnosed</span>
+</li>
+<li class="pl-5 relative">
+<span class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-surface-light dark:border-surface-dark"></span>
+<span class="block text-xs text-slate-400 mb-0.5">Jan 2023</span>
+<span class="block text-sm font-medium text-slate-700 dark:text-slate-200">Mild Anemia</span>
+</li>
+<li class="pl-5 relative">
+<span class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-surface-light dark:border-surface-dark"></span>
+<span class="block text-xs text-slate-400 mb-0.5">Chronic</span>
+<span class="block text-sm font-medium text-slate-700 dark:text-slate-200">Allergy: Penicillin</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Center Column: Voice-to-Text Timeline (Core Feature) -->
+<div class="lg:col-span-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-full overflow-hidden">
+<!-- Timeline Header -->
+<div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+<div class="flex items-center gap-2">
+<span class="material-icons text-primary">graphic_eq</span>
+<h3 class="font-semibold text-slate-800 dark:text-white">Voice-to-Text Symptom Timeline</h3>
+</div>
+<span class="text-xs px-2 py-1 bg-primary/10 text-primary rounded font-medium">Live Updates</span>
+</div>
+<!-- Timeline Body -->
+<div class="flex-1 overflow-y-auto p-6 timeline-scroll space-y-8 bg-slate-50/30 dark:bg-slate-900/20">
+<!-- Day Separator -->
+<div class="flex items-center justify-center">
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-xs font-medium px-3 py-1 rounded-full">Today, Oct 12</span>
+</div>
+<!-- Message 1: High Priority -->
+<div class="flex gap-4">
+<div class="flex-shrink-0 mt-1">
+<img alt="Malika Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="Small avatar of Malika" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3JQqTAH3xFuojFRFxo0VjVYG0H9jHXlEOlDukPcqbHJNxjZbsVnJTkeYPlYJEVfajJj_RHPpTJ815v19wuQPJiU3DNDyHOAWMQmh4OFI63Yw5W_PDgzr0RhEPCEuEfoGVJ6xtw8qLyIfCk4BYCjjp-SPp3TGsGwxzNCGfliduSeHbNaRVPYBxYL3RSwsJRN550U-yib5KaZq9yhdrYCpnyRdBypwuuL0yeTMqFMZIbF7u17yh2HzWvYf2WouCwcjrQcSBnBvazGV1"/>
+</div>
+<div class="flex-1 max-w-2xl">
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-semibold text-slate-900 dark:text-white">Malika</span>
+<span class="text-xs text-slate-400">9:30 AM</span>
+</div>
+<!-- Chat Bubble -->
+<div class="bg-white dark:bg-slate-800 border border-risk-high/30 rounded-2xl rounded-tl-none p-4 shadow-sm relative group">
+<div class="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-slate-400 hover:text-primary"><span class="material-icons text-sm">bookmark_border</span></button>
+</div>
+<p class="text-slate-700 dark:text-slate-200 text-base leading-relaxed mb-3">
+                                    "I have a <span class="bg-risk-high/10 text-risk-high px-1 rounded">persistent headache</span> since morning and my vision feels a bit blurry at the edges."
+                                </p>
+<!-- Audio Player -->
+<div class="bg-slate-100 dark:bg-slate-900/50 rounded-lg p-2 flex items-center gap-3 mb-3 border border-slate-100 dark:border-slate-700">
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary-dark transition-colors shadow-sm">
+<span class="material-icons text-sm">play_arrow</span>
+</button>
+<div class="flex-1">
+<div class="h-6 flex items-center gap-[2px] opacity-40">
+<!-- Static waveform approximation -->
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-5 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-4 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-6 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-2 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-4 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-5 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-4 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-6 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-2 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-4 bg-slate-400 rounded-full"></div>
+</div>
+</div>
+<span class="text-xs text-slate-400 font-mono">0:14</span>
+<span class="material-icons text-slate-300 text-sm">mic</span>
+</div>
+<!-- Tags -->
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-risk-high/10 text-risk-high border border-risk-high/20">
+                                        #HypertensionRisk
+                                    </span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                        #Headache
+                                    </span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                        #VisionBlur
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Message 2: Playing State -->
+<div class="flex gap-4">
+<div class="flex-shrink-0 mt-1">
+<img alt="Malika Avatar" class="w-10 h-10 rounded-full object-cover grayscale opacity-70" data-alt="Small avatar of Malika" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS0uYMGSoVNc5NpT5k3m7RNlUBWuaV2hdxK86mBy4Sjxw4y5SQt_3_wbXQfw3v4jcbitJGWj9s8jD_NVlqLe3BnukoKKyqo0zaSYqXYQ_HgD-1MCZqIryrRmHxoseTq4u2svr4qp8G8UiA0XJHUsnWVzPWtZGN3wvZTOVqG-iU9FRoiZ-Sxyo_HV5QjsUL_F497Q4O_B0uJZa7kKOog8Tk9GbTfHHOpPbAWlKjFAZlYdwD-SSWWMwEFro9o5Folbk0ijSd2w2cu5Po"/>
+</div>
+<div class="flex-1 max-w-2xl">
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-semibold text-slate-700 dark:text-slate-300">Malika</span>
+<span class="text-xs text-slate-400">8:15 AM</span>
+</div>
+<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-4 shadow-sm">
+<p class="text-slate-600 dark:text-slate-300 text-base leading-relaxed mb-3">
+                                    "Is it normal to feel a bit of swelling in my ankles?"
+                                </p>
+<div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2 flex items-center gap-3 mb-2 border border-slate-100 dark:border-slate-700">
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors">
+<span class="material-icons text-sm">play_arrow</span>
+</button>
+<div class="flex-1 h-6 flex items-center gap-[2px] opacity-30">
+<!-- Static waveform -->
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-4 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-2 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+</div>
+<span class="text-xs text-slate-400 font-mono">0:08</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                        #Edema
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Day Separator -->
+<div class="flex items-center justify-center pt-4">
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-xs font-medium px-3 py-1 rounded-full">Yesterday, Oct 11</span>
+</div>
+<!-- Message 3 -->
+<div class="flex gap-4">
+<div class="flex-shrink-0 mt-1">
+<img alt="Malika Avatar" class="w-10 h-10 rounded-full object-cover grayscale opacity-70" data-alt="Small avatar of Malika" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCycuunAKwyeIFzx15ccZm9NimLwAw20GSj4k-qinRqRZTJVaaYND_VZ9JuY4cl9eS6Ok59MwoA5CBwfRLZPAhQMAICwHqLzUA_pdHPKEGs-ldzNzVi6VakKnvlRM0VLLd2xsq0r1qVSmWhnfv1FLwl276KjdFJENbamFplzQUdb0SJxhZi7ZNWzChl3TBuZ5ESBzLsfOVuxpggLaCEvpOMgUJ0NNNmL999j161LaFitR_wDRuzYbLvgtstVeHH35y2ds7ZutiCBi0r"/>
+</div>
+<div class="flex-1 max-w-2xl">
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-semibold text-slate-700 dark:text-slate-300">Malika</span>
+<span class="text-xs text-slate-400">8:00 PM</span>
+</div>
+<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-4 shadow-sm">
+<p class="text-slate-600 dark:text-slate-300 text-base leading-relaxed mb-3">
+                                    "Feeling slight dizziness when standing up quickly."
+                                </p>
+<div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2 flex items-center gap-3 mb-2 border border-slate-100 dark:border-slate-700">
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors">
+<span class="material-icons text-sm">play_arrow</span>
+</button>
+<div class="flex-1 h-6 flex items-center gap-[2px] opacity-30">
+<!-- Static waveform -->
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-5 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-2 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-4 bg-slate-400 rounded-full"></div>
+<div class="w-[3px] h-3 bg-slate-400 rounded-full"></div>
+</div>
+<span class="text-xs text-slate-400 font-mono">0:10</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-500 border border-amber-200 dark:border-amber-900/30">
+                                        #Dizziness
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Footer / Input Placeholder -->
+<div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark">
+<div class="relative">
+<input class="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm" placeholder="Add a clinician note..." type="text"/>
+<button class="absolute right-2 top-2 p-1 text-primary hover:text-primary-dark">
+<span class="material-icons">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Trends & Contact -->
+<div class="lg:col-span-3 flex flex-col gap-6 overflow-y-auto pb-4">
+<!-- Graph Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+<span class="material-icons text-primary text-base">trending_up</span>
+                        Risk Trend (14 Days)
+                    </h3>
+<div class="h-48 w-full flex items-end justify-between gap-1 relative px-2">
+<!-- Custom CSS Grid Lines -->
+<div class="absolute inset-0 border-b border-l border-slate-100 dark:border-slate-700 pointer-events-none"></div>
+<div class="absolute bottom-12 left-0 right-0 h-px bg-slate-100 dark:bg-slate-700 border-dashed pointer-events-none"></div>
+<div class="absolute bottom-24 left-0 right-0 h-px bg-slate-100 dark:bg-slate-700 border-dashed pointer-events-none"></div>
+<!-- Bars representing Trend -->
+<div class="w-full bg-primary/20 rounded-t-sm h-[20%] group relative">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded">20%</div>
+</div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[25%]"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[22%]"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[30%]"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[28%]"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[35%]"></div>
+<div class="w-full bg-primary/30 rounded-t-sm h-[40%]"></div>
+<div class="w-full bg-primary/30 rounded-t-sm h-[45%]"></div>
+<div class="w-full bg-primary/30 rounded-t-sm h-[42%]"></div>
+<div class="w-full bg-primary/40 rounded-t-sm h-[50%]"></div>
+<div class="w-full bg-primary/50 rounded-t-sm h-[55%]"></div>
+<div class="w-full bg-primary/60 rounded-t-sm h-[65%]"></div>
+<div class="w-full bg-risk-high/80 rounded-t-sm h-[85%] group relative shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-risk-high text-white text-xs px-2 py-1 rounded font-bold">85%</div>
+</div>
+<div class="w-full bg-risk-high rounded-t-sm h-[90%] shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div>
+</div>
+<div class="flex justify-between mt-2 text-[10px] text-slate-400 uppercase font-medium">
+<span>14 days ago</span>
+<span>Today</span>
+</div>
+</div>
+<!-- Family Contact Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+<span class="material-icons text-primary text-base">family_restroom</span>
+                        Emergency Contact
+                    </h3>
+<div class="flex items-center gap-4 mb-5">
+<div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 font-bold text-lg">
+                            AA
+                        </div>
+<div>
+<p class="font-semibold text-slate-900 dark:text-white">Ali Ahmed</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">Husband</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col items-center justify-center py-3 px-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors group">
+<span class="material-icons text-slate-500 group-hover:text-primary mb-1">call</span>
+<span class="text-xs font-medium text-slate-600 dark:text-slate-300">Call</span>
+</button>
+<button class="flex flex-col items-center justify-center py-3 px-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/10 dark:hover:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-lg transition-colors group">
+<span class="material-icons text-emerald-500 group-hover:text-emerald-600 mb-1">chat</span>
+<span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">WhatsApp</span>
+</button>
+</div>
+</div>
+<!-- Quick Tips / Info -->
+<div class="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-100 dark:border-blue-900/30">
+<div class="flex gap-3">
+<span class="material-icons text-primary mt-0.5 text-lg">info</span>
+<div>
+<p class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">Recommendation</p>
+<p class="text-sm text-slate-600 dark:text-slate-300 leading-snug">
+                                BP spike correlates with evening updates. Suggest monitoring evening diet and stress levels.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

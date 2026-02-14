@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { DashboardStats } from "@/types";
 
 interface DashboardHeaderProps {
@@ -82,6 +83,7 @@ function StatItem({ label, value, color, bgColor, isPulsing = false, onClick }: 
 }
 
 export default function DashboardHeader({ stats }: DashboardHeaderProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -91,20 +93,33 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // TODO: Implement actual search functionality
-      console.log("Searching for:", searchQuery);
+      // Use Next.js router for client-side navigation
+      router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
   const handleStatClick = (filter: string) => {
-    // TODO: Implement filter functionality via URL params or state management
-    console.log("Filter by:", filter);
-    window.location.href = `/dashboard?filter=${filter}`;
+    // Use Next.js router instead of window.location
+    router.push(`/dashboard?filter=${filter}`);
   };
 
   const handleNotificationClick = (notificationId: string) => {
-    // TODO: Mark notification as read and navigate if needed
+    // TODO: Mark notification as read
     console.log("Notification clicked:", notificationId);
+    setShowNotifications(false);
+    // Navigate to notification detail or patient
+    router.push(`/dashboard/notifications/${notificationId}`);
+  };
+
+  const closeNotifications = () => {
+    setShowNotifications(false);
+  };
+
+  // Keyboard handler for backdrop
+  const handleBackdropKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeNotifications();
+    }
   };
 
   return (
@@ -139,7 +154,7 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
                 aria-label="Clear search"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
@@ -153,8 +168,9 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
       <button
         type="button"
         onClick={() => setShowMobileSearch(!showMobileSearch)}
-        className="md:hidden text-slate-500 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 rounded p-1"
-        aria-label="Toggle search"
+        className="md:hidden text-slate-500 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 rounded p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+        aria-label={showMobileSearch ? "Close search" : "Open search"}
+        aria-expanded={showMobileSearch}
       >
         <span className="material-symbols-outlined">
           {showMobileSearch ? "close" : "search"}
@@ -197,7 +213,7 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
         <div className="hidden sm:flex items-center gap-2">
           <Link
             href="/dashboard/patients/new"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-sky-500 text-white text-sm font-medium hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+            className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md bg-sky-500 text-white text-sm font-medium hover:bg-sky-600 active:bg-sky-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
             aria-label="Add new patient"
           >
             <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
@@ -210,18 +226,19 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
         {/* Notifications */}
         <div className="relative">
           <button 
-            className="relative text-slate-500 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 rounded p-1"
+            className="relative text-slate-500 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 rounded p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
             type="button"
             onClick={() => setShowNotifications(!showNotifications)}
             aria-label={`Notifications, ${unreadCount} unread`}
             aria-expanded={showNotifications}
+            aria-haspopup="dialog"
           >
             <span className="material-symbols-outlined" aria-hidden="true">
               notifications
             </span>
             {unreadCount > 0 && (
               <span 
-                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"
+                className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"
                 aria-hidden="true"
               >
                 {unreadCount}
@@ -234,9 +251,12 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
             <>
               {/* Backdrop for mobile */}
               <div 
-                className="fixed inset-0 z-40 md:hidden"
-                onClick={() => setShowNotifications(false)}
-                aria-hidden="true"
+                className="fixed inset-0 z-40 md:hidden bg-black/20"
+                onClick={closeNotifications}
+                onKeyDown={handleBackdropKeyDown}
+                role="button"
+                tabIndex={0}
+                aria-label="Close notifications"
               />
               
               {/* Dropdown Panel */}
@@ -249,7 +269,7 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
                   <h3 className="font-semibold text-slate-900">Notifications</h3>
                   <button
                     type="button"
-                    className="text-xs text-sky-600 hover:text-sky-700 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 rounded px-2 py-1"
+                    className="text-xs text-sky-600 hover:text-sky-700 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 rounded px-2 py-1 min-h-[32px] cursor-pointer transition-colors"
                     onClick={() => {
                       // TODO: Mark all as read
                       console.log("Mark all as read");
@@ -268,56 +288,58 @@ export default function DashboardHeader({ stats }: DashboardHeaderProps) {
                       <p className="text-sm">No notifications</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-100">
+                    <ul className="divide-y divide-slate-100">
                       {MOCK_NOTIFICATIONS.map((notification) => (
-                        <button
-                          key={notification.id}
-                          type="button"
-                          onClick={() => handleNotificationClick(notification.id)}
-                          className={`w-full p-4 text-left hover:bg-slate-50 transition-colors focus:outline-none focus:bg-slate-50 ${
-                            !notification.read ? 'bg-sky-50/50' : ''
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div 
-                              className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                                notification.type === 'critical' ? 'bg-red-500' :
-                                notification.type === 'warning' ? 'bg-amber-500' :
-                                'bg-sky-500'
-                              }`}
-                              aria-hidden="true"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2 mb-1">
-                                <h4 className="font-semibold text-sm text-slate-900">
-                                  {notification.title}
-                                </h4>
-                                {!notification.read && (
-                                  <span 
-                                    className="w-2 h-2 bg-sky-500 rounded-full shrink-0"
-                                    aria-label="Unread"
-                                  />
-                                )}
+                        <li key={notification.id}>
+                          <button
+                            type="button"
+                            onClick={() => handleNotificationClick(notification.id)}
+                            className={`w-full p-4 text-left hover:bg-slate-50 active:bg-slate-100 transition-colors focus:outline-none focus:bg-slate-50 focus:ring-2 focus:ring-inset focus:ring-sky-500 cursor-pointer ${
+                              !notification.read ? 'bg-sky-50/50' : ''
+                            }`}
+                            aria-label={`${notification.title}: ${notification.message}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div 
+                                className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                                  notification.type === 'critical' ? 'bg-red-500' :
+                                  notification.type === 'warning' ? 'bg-amber-500' :
+                                  'bg-sky-500'
+                                }`}
+                                aria-hidden="true"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2 mb-1">
+                                  <span className="font-semibold text-sm text-slate-900">
+                                    {notification.title}
+                                  </span>
+                                  {!notification.read && (
+                                    <span 
+                                      className="w-2 h-2 bg-sky-500 rounded-full shrink-0"
+                                      aria-label="Unread"
+                                    />
+                                  )}
+                                </div>
+                                <p className="text-sm text-slate-600 mb-1">
+                                  {notification.message}
+                                </p>
+                                <time className="text-xs text-slate-400">
+                                  {notification.time}
+                                </time>
                               </div>
-                              <p className="text-sm text-slate-600 mb-1">
-                                {notification.message}
-                              </p>
-                              <time className="text-xs text-slate-400">
-                                {notification.time}
-                              </time>
                             </div>
-                          </div>
-                        </button>
+                          </button>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
                 </div>
 
                 <div className="p-3 border-t border-slate-200">
                   <Link
                     href="/dashboard/notifications"
-                    className="block text-center text-sm text-sky-600 hover:text-sky-700 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 rounded py-1"
-                    onClick={() => setShowNotifications(false)}
+                    className="block text-center text-sm text-sky-600 hover:text-sky-700 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 rounded py-2 min-h-[44px] flex items-center justify-center"
+                    onClick={closeNotifications}
                   >
                     View all notifications
                   </Link>
