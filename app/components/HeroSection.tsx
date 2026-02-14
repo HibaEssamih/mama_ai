@@ -2,153 +2,194 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+    <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24 overflow-hidden">
+      {/* Enhanced Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-background-dark/5 dark:to-primary/5"></div>
+      <div className="absolute top-20 right-0 -mr-40 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 -ml-40 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Text Content */}
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider mb-6">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              AI-Powered Maternal Care
+          <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left space-y-6 sm:space-y-8">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-cyan-400/10 border border-primary/20 text-primary text-xs sm:text-sm font-semibold backdrop-blur-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              AI-Powered Maternal Care Platform
             </div>
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mb-6 text-slate-900 dark:text-white">
-              Continuous maternal <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-200">monitoring</span> for safer pregnancies.
+
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] tracking-tight">
+              <span className="text-slate-900 dark:text-white">
+                Save Lives with
+              </span>
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-cyan-400 to-primary animate-gradient bg-300%">
+                Real-Time Monitoring
+              </span>
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed max-w-lg">
-              Bridging the gap between rural mothers and medical professionals. We use voice-first technology and WhatsApp to deliver real-time early warning signs to doctors.
+
+            {/* Subheadline */}
+            <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0">
+              Empowering rural mothers with <span className="font-semibold text-slate-900 dark:text-white">voice-first AI technology</span> via WhatsApp. Detect pregnancy complications early, alert doctors instantly.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3.5 rounded-lg shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2">
-                Request a Demo
-                <span className="material-icons-round text-sm">arrow_forward</span>
+
+            {/* Stats Bar - Mobile Friendly */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 sm:gap-8 py-4">
+              <div className="text-center lg:text-left">
+                <div className="text-2xl sm:text-3xl font-bold text-primary">200+</div>
+                <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Active Clinicians</div>
+              </div>
+              <div className="h-12 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block"></div>
+              <div className="text-center lg:text-left">
+                <div className="text-2xl sm:text-3xl font-bold text-primary">5K+</div>
+                <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Mothers Protected</div>
+              </div>
+              <div className="h-12 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block"></div>
+              <div className="text-center lg:text-left">
+                <div className="text-2xl sm:text-3xl font-bold text-primary">24/7</div>
+                <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">AI Monitoring</div>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
+              <button className="group bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105">
+                Get Started Free
+                <span className="material-icons-round text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </button>
-              <button className="border border-slate-300 dark:border-white/20 hover:border-primary text-slate-700 dark:text-white hover:text-primary dark:hover:text-primary font-medium px-8 py-3.5 rounded-lg transition-all flex items-center justify-center gap-2 bg-transparent">
-                Platform Login
+              <button className="group border-2 border-slate-300 dark:border-white/20 hover:border-primary text-slate-700 dark:text-white hover:text-primary dark:hover:text-primary font-semibold px-8 py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 bg-white/50 dark:bg-white/5 backdrop-blur-sm">
+                <span className="material-icons-round text-xl">play_circle</span>
+                Watch Demo
               </button>
             </div>
-            <div className="mt-10 flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-              <div className="flex -space-x-2">
+
+            {/* Trust Indicators */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+              <div className="flex -space-x-3">
                 <Image
                   alt="Doctor profile"
-                  className="w-8 h-8 rounded-full border-2 border-background-light dark:border-background-dark"
+                  className="w-10 h-10 rounded-full border-3 border-white dark:border-background-dark ring-2 ring-primary/20"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUwQUfdZeJDrmZtLQhKwNt9LpB18GBLqbTwjKIimAj90WK9_Ab2IOsXS5S2BrkhmR0WHKA-gUMMNQWMUXbCZcTWR1S1WYdo8uLTQce2uXN-5SZ437MO7Ftrqf5ccBKNEwlrTQMFbKqOR25ddeRisru5tdTmQYGRe87svWp2yovBZKBy2UVzVRpqHxXlkzuU19UH3l1Kxb_EqX1h43-njLRmlsNcKE7ykfWFgQqcHRbzcuSLqX6BdrTLndhjwl4rh8_nVKsIQBimdwg"
-                  width={32}
-                  height={32}
+                  width={40}
+                  height={40}
                 />
                 <Image
                   alt="Doctor profile"
-                  className="w-8 h-8 rounded-full border-2 border-background-light dark:border-background-dark"
+                  className="w-10 h-10 rounded-full border-3 border-white dark:border-background-dark ring-2 ring-primary/20"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9i-bmyfENBE3I_d-yETctnS4nK1w6QgFUSesSnDkUDS_EQtawn-Nix_m9B1j8b6n06Kj3qMLPEYtUQBvohwKwdOLUwLuwDBPX9BPg4RDhjfyxhspAcbPfZ2hpYceUK3iZZ5hn4a3IyexEF_nBLGT0moIpHV7WKipO07UIXUGbXqpiNY4q-qm17UqrGT5o21HOv69Ih51LyeJ9oLita-gKfGPr4Iy9o1fuBX3Y8YDwhlNEjIHhbWEVVsfoJ0fjUjfFJd1GD8KxViiS"
-                  width={32}
-                  height={32}
+                  width={40}
+                  height={40}
                 />
                 <Image
                   alt="Doctor profile"
-                  className="w-8 h-8 rounded-full border-2 border-background-light dark:border-background-dark"
+                  className="w-10 h-10 rounded-full border-3 border-white dark:border-background-dark ring-2 ring-primary/20"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXreAN9MNhfb8HiDo4jWi8VzY2bxqplZOuIAxUmrgzQloPrRytk_aBiQ5CEPrvbnyMMmjxBfIw_z_8Jcf7MyTSb6WKMS0SeRSrYEpoQkLpsxGYAzUsTjrQfO8nCFXsT1iOR9Xbn6dJ9iXFyLvs49s75OKXmFXWDWLZppGFgmENiBV6YbHQEz8Q8Mn5UBrm3I6dmgRzRsTLCjy6TuJyvR2iyi-7VvSVAYG3SU3TYsMIO2jO22dtjFTdq6YMFz3GJQ411ol5LYITsk7K"
-                  width={32}
-                  height={32}
+                  width={40}
+                  height={40}
                 />
+                <div className="w-10 h-10 rounded-full border-3 border-white dark:border-background-dark ring-2 ring-primary/20 bg-primary flex items-center justify-center text-white text-xs font-bold">
+                  +50
+                </div>
               </div>
-              <p>Trusted by <span className="text-slate-900 dark:text-white font-semibold">200+ Clinicians</span></p>
+              <div className="text-sm text-slate-600 dark:text-slate-400 text-center lg:text-left">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="material-icons-round text-base">star</span>
+                    ))}
+                  </div>
+                  <span className="font-semibold text-slate-900 dark:text-white">4.9</span>
+                </div>
+                <p className="text-xs">Trusted by healthcare providers worldwide</p>
+              </div>
             </div>
           </div>
 
-          {/* Hero Image / Visual */}
-          <div className="relative lg:h-[600px] flex items-center justify-center">
-            {/* Abstract Background Shape behind image */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent rounded-full blur-3xl opacity-60"></div>
+          {/* Visual Content - Improved for all screens */}
+          <div className="relative lg:h-[600px] h-[400px] md:h-[500px]">
+            {/* Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-cyan-400/10 rounded-3xl"></div>
             
-            {/* Composition Container */}
-            <div className="relative w-full h-full">
-              {/* Card 1: Mother's View (Phone) */}
-              <div className="absolute top-10 left-0 lg:left-4 z-20 w-48 sm:w-64 bg-white dark:bg-card-dark rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden transform transition-transform hover:-translate-y-2 duration-500">
-                <div className="bg-primary/10 p-4 border-b border-white/5 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
-                    <span className="material-icons-round text-sm">mic</span>
-                  </div>
-                  <div>
-                    <div className="h-2 w-20 bg-primary/40 rounded mb-1"></div>
-                    <div className="h-2 w-12 bg-primary/20 rounded"></div>
+            {/* Main Feature Card - Visible on all screens */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm">
+              <div className="bg-white dark:bg-card-dark rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden transform hover:scale-105 transition-transform duration-500">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-primary/10 to-cyan-400/10 p-4 border-b border-gray-100 dark:border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg">
+                      <span className="material-icons-round text-2xl">health_and_safety</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-900 dark:text-white">Live Monitoring</h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">Real-time risk assessment</p>
+                    </div>
+                    <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      Active
+                    </div>
                   </div>
                 </div>
-                <div className="p-4 space-y-3">
-                  <div className="flex items-start gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 overflow-hidden">
-                      <Image
-                        alt="Pregnant woman profile"
-                        className="object-cover w-full h-full"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtVNsoEfuTW9J7RGUeBw1c_AOqnhxyH58X45vHaJDikZRTzYbxcevYyLXSHZyM4lm7mmpHoUhPSRjKsVbdJxbl2ro4WQhjjwjQTS_YwtzU9u4ov1NYd9Np4SQEN0p9F-KmVqTEjGYFu9WLHpycMV7AVyHpBPoVEAIW7b8Rw0Pi6-el-SCF8YuP_sG3b0_UsAgw_q3ObIViQEgS-9f5COtHBbDwM1ofEBfw5vDuGUFAuGrNa7asaRRlfTQE8I0gYs9j5MGGj8hrIz3g"
-                        width={32}
-                        height={32}
-                      />
+
+                {/* Content */}
+                <div className="p-5 space-y-4">
+                  {/* Patient Alert */}
+                  <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-xl">
+                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 flex-shrink-0">
+                      <span className="material-icons-round">priority_high</span>
                     </div>
-                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg rounded-tl-none p-2 text-xs text-slate-600 dark:text-slate-300 w-full">
-                      I&apos;m feeling a sharp pain on my right side since morning.
-                    </div>
-                  </div>
-                  <div className="flex items-end justify-end gap-2">
-                    <div className="bg-primary text-white rounded-lg rounded-tr-none p-2 text-xs w-3/4">
-                      <div className="flex items-center gap-1 mb-1">
-                        <span className="material-icons-round text-[10px]">graphic_eq</span>
-                        <span>Analyzing voice...</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-semibold text-sm text-slate-900 dark:text-white">High Risk Alert</h4>
+                        <span className="text-xs text-red-600 dark:text-red-400 font-medium">2 min ago</span>
                       </div>
-                      Alert sent to Dr. Amina.
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Patient Sarah K. - Elevated BP detected</p>
+                      <div className="flex gap-2">
+                        <button className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-xs font-semibold rounded-lg transition-colors">
+                          View Details
+                        </button>
+                        <button className="px-3 py-1.5 border border-slate-300 dark:border-white/20 text-slate-700 dark:text-white text-xs font-semibold rounded-lg hover:border-primary hover:text-primary transition-colors">
+                          Call Patient
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Stats */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
+                      <div className="text-lg font-bold text-primary">42</div>
+                      <div className="text-[10px] text-slate-600 dark:text-slate-400">Patients</div>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
+                      <div className="text-lg font-bold text-yellow-500">8</div>
+                      <div className="text-[10px] text-slate-600 dark:text-slate-400">Pending</div>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
+                      <div className="text-lg font-bold text-green-500">34</div>
+                      <div className="text-[10px] text-slate-600 dark:text-slate-400">Healthy</div>
                     </div>
                   </div>
                 </div>
-                <div className="h-32 bg-gray-50 dark:bg-[#132326] relative overflow-hidden">
-                  <Image
-                    alt="Woman holding phone"
-                    className="w-full h-full object-cover opacity-80"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbXtEOHmkF-UDuvT93i6z5q1-_m6ykXkq62EpiNhs1mDiihQahPKBItDa0KxTyke57xERR7whSAyXS5iQ_pztSdiXc403AxO1BUFywujRfzSHUFDXtNiLF0gaT0hXNY9kSs5jl4XAdDPsNSBUY6n2hZpuB_iL9d9sLQ2FYT1X8kpP5J6GDUy6in270E6qsHvSU0gIxjWqvjuqEW4O8gPtfwD4-cO544dV48uzFlbJw0Sqlc0hYaDEtZFXNgwxaVx877uq0zcY2BiqW"
-                    width={256}
-                    height={128}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-card-dark to-transparent"></div>
-                </div>
               </div>
+            </div>
 
-              {/* Card 2: Doctor's Dashboard (Desktop/Tablet) */}
-              <div className="absolute top-24 right-0 lg:right-4 z-10 w-64 sm:w-80 lg:w-96 bg-white dark:bg-card-dark rounded-xl shadow-2xl border border-gray-100 dark:border-white/5 p-4 transform translate-y-12 lg:translate-y-0">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-white">Patient Risk Overview</h3>
-                  <span className="bg-red-500/10 text-red-500 text-xs px-2 py-1 rounded font-medium border border-red-500/20">High Risk Alert</span>
-                </div>
-                {/* Dummy Chart */}
-                <div className="flex items-end justify-between h-24 gap-2 mb-4">
-                  <div className="w-full bg-primary/10 rounded-sm h-[40%] relative group">
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-primary opacity-0 group-hover:opacity-100 transition-opacity">Normal</div>
-                  </div>
-                  <div className="w-full bg-primary/20 rounded-sm h-[60%]"></div>
-                  <div className="w-full bg-primary/10 rounded-sm h-[30%]"></div>
-                  <div className="w-full bg-primary/30 rounded-sm h-[50%]"></div>
-                  <div className="w-full bg-red-500/80 rounded-sm h-[90%] animate-pulse relative">
-                    <div className="absolute -top-2 right-0 w-2 h-2 bg-red-400 rounded-full"></div>
-                  </div>
-                </div>
-                {/* Patient List Item */}
-                <div className="flex items-center gap-3 p-3 bg-background-light dark:bg-background-dark rounded-lg border border-gray-100 dark:border-white/5">
-                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-500">
-                    <span className="material-icons-round">priority_high</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-800 dark:text-white">Sarah K.</div>
-                    <div className="text-xs text-slate-500">Gestational Hypertension</div>
-                  </div>
-                  <button className="text-primary text-xs font-semibold hover:underline">View</button>
-                </div>
+            {/* Floating Elements */}
+            <div className="hidden lg:block absolute top-10 right-10 bg-white dark:bg-card-dark px-4 py-3 rounded-xl shadow-lg border border-gray-100 dark:border-white/5 animate-bounce-slow">
+              <div className="flex items-center gap-2">
+                <span className="material-icons-round text-green-500">check_circle</span>
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">95% Detection Rate</span>
               </div>
+            </div>
 
-              {/* Decorative connecting line */}
-              <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 400 400">
-                <path d="M100,150 C150,150 150,250 300,250" fill="none" stroke="#11b4d4" strokeDasharray="5,5" strokeWidth="2"></path>
-              </svg>
+            <div className="hidden lg:block absolute bottom-10 left-10 bg-white dark:bg-card-dark px-4 py-3 rounded-xl shadow-lg border border-gray-100 dark:border-white/5 animate-pulse">
+              <div className="flex items-center gap-2">
+                <span className="material-icons-round text-primary">language</span>
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">10+ Languages</span>
+              </div>
             </div>
           </div>
         </div>

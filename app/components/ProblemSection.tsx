@@ -1,41 +1,41 @@
 export default function ProblemSection() {
   return (
-    <section className="py-20 bg-white dark:bg-[#132326] relative">
+    <section className="py-12 sm:py-16 md:py-20 bg-white dark:bg-[#132326] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Why Current Care Falls Short</h2>
-          <p className="text-slate-600 dark:text-slate-400">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">Why Current Care Falls Short</h2>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
             Millions of women in rural areas face preventable complications due to systemic gaps in the healthcare delivery model.
           </p>
         </div>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {/* Card 1 */}
-          <div className="group bg-background-light dark:bg-background-dark p-8 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
-              <span className="material-icons-round text-3xl">school</span>
+          <div className="group bg-background-light dark:bg-background-dark p-6 sm:p-8 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+              <span className="material-icons-round text-2xl sm:text-3xl">school</span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Knowledge Gap</h3>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Knowledge Gap</h3>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-xs sm:text-sm">
               Expectant mothers often lack awareness of critical danger signs, delaying the decision to seek help until it&apos;s too late.
             </p>
           </div>
           {/* Card 2 */}
-          <div className="group bg-background-light dark:bg-background-dark p-8 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
-              <span className="material-icons-round text-3xl">directions_walk</span>
+          <div className="group bg-background-light dark:bg-background-dark p-6 sm:p-8 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+              <span className="material-icons-round text-2xl sm:text-3xl">directions_walk</span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Distance Gap</h3>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Distance Gap</h3>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-xs sm:text-sm">
               Physical distance from clinics prevents frequent check-ups, leaving long periods of pregnancy completely unmonitored.
             </p>
           </div>
           {/* Card 3 */}
-          <div className="group bg-background-light dark:bg-background-dark p-8 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
-              <span className="material-icons-round text-3xl">visibility_off</span>
+          <div className="group bg-background-light dark:bg-background-dark p-6 sm:p-8 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 sm:col-span-2 md:col-span-1">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+              <span className="material-icons-round text-2xl sm:text-3xl">visibility_off</span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Doctor Blindness</h3>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Doctor Blindness</h3>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-xs sm:text-sm">
               Without real-time data between visits, doctors are reactive rather than proactive, often missing early warning signals.
             </p>
           </div>
