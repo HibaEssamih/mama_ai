@@ -2,19 +2,22 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24 overflow-hidden">
+    <section 
+      className="relative pt-20 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24 overflow-hidden"
+      aria-labelledby="hero-heading"
+    >
       {/* Enhanced Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-background-dark/5 dark:to-primary/5"></div>
-      <div className="absolute top-20 right-0 -mr-40 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 -ml-40 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-background-dark/5 dark:to-primary/5" aria-hidden="true"></div>
+      <div className="absolute top-20 right-0 -mr-40 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl animate-pulse pointer-events-none" aria-hidden="true"></div>
+      <div className="absolute bottom-0 left-0 -ml-40 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Text Content */}
           <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left space-y-6 sm:space-y-8">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-cyan-400/10 border border-primary/20 text-primary text-xs sm:text-sm font-semibold backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-cyan-400/10 border border-primary/20 text-primary text-xs sm:text-sm font-semibold backdrop-blur-sm" role="status" aria-label="AI-Powered platform status">
+              <span className="relative flex h-2 w-2" aria-hidden="true">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
@@ -22,7 +25,7 @@ export default function HeroSection() {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] tracking-tight">
+            <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] tracking-tight">
               <span className="text-slate-900 dark:text-white">
                 Save Lives with
               </span>
@@ -34,58 +37,64 @@ export default function HeroSection() {
 
             {/* Subheadline */}
             <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Empowering rural mothers with <span className="font-semibold text-slate-900 dark:text-white">voice-first AI technology</span> via WhatsApp. Detect pregnancy complications early, alert doctors instantly.
+              Empowering rural mothers with <strong className="font-semibold text-slate-900 dark:text-white">voice-first AI technology</strong> via WhatsApp. Detect pregnancy complications early, alert doctors instantly.
             </p>
 
             {/* Stats Bar - Mobile Friendly */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 sm:gap-8 py-4">
-              <div className="text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">200+</div>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 sm:gap-8 py-4" role="list" aria-label="Platform statistics">
+              <div className="text-center lg:text-left" role="listitem">
+                <div className="text-2xl sm:text-3xl font-bold text-primary" aria-label="200 plus active clinicians">200+</div>
                 <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Active Clinicians</div>
               </div>
-              <div className="h-12 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block"></div>
-              <div className="text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">5K+</div>
+              <div className="h-12 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block" aria-hidden="true"></div>
+              <div className="text-center lg:text-left" role="listitem">
+                <div className="text-2xl sm:text-3xl font-bold text-primary" aria-label="5000 plus mothers protected">5K+</div>
                 <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Mothers Protected</div>
               </div>
-              <div className="h-12 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block"></div>
-              <div className="text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">24/7</div>
+              <div className="h-12 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block" aria-hidden="true"></div>
+              <div className="text-center lg:text-left" role="listitem">
+                <div className="text-2xl sm:text-3xl font-bold text-primary" aria-label="24/7 AI monitoring">24/7</div>
                 <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">AI Monitoring</div>
               </div>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
-              <button className="group bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105">
+              <a 
+                href="#cta"
+                className="group bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background-light dark:focus:ring-offset-background-dark"
+              >
                 Get Started Free
-                <span className="material-icons-round text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
-              </button>
-              <button className="group border-2 border-slate-300 dark:border-white/20 hover:border-primary text-slate-700 dark:text-white hover:text-primary dark:hover:text-primary font-semibold px-8 py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 bg-white/50 dark:bg-white/5 backdrop-blur-sm">
-                <span className="material-icons-round text-xl">play_circle</span>
+                <span className="material-icons-round text-xl group-hover:translate-x-1 transition-transform" aria-hidden="true">arrow_forward</span>
+              </a>
+              <a 
+                href="#video-demo"
+                className="group border-2 border-slate-300 dark:border-white/20 hover:border-primary text-slate-700 dark:text-white hover:text-primary dark:hover:text-primary font-semibold px-8 py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 bg-white/50 dark:bg-white/5 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background-light dark:focus:ring-offset-background-dark"
+              >
+                <span className="material-icons-round text-xl" aria-hidden="true">play_circle</span>
                 Watch Demo
-              </button>
+              </a>
             </div>
 
             {/* Trust Indicators */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-              <div className="flex -space-x-3">
+              <div className="flex -space-x-3" role="list" aria-label="Healthcare providers">
                 <Image
-                  alt="Doctor profile"
+                  alt="Healthcare provider"
                   className="w-10 h-10 rounded-full border-3 border-white dark:border-background-dark ring-2 ring-primary/20"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUwQUfdZeJDrmZtLQhKwNt9LpB18GBLqbTwjKIimAj90WK9_Ab2IOsXS5S2BrkhmR0WHKA-gUMMNQWMUXbCZcTWR1S1WYdo8uLTQce2uXN-5SZ437MO7Ftrqf5ccBKNEwlrTQMFbKqOR25ddeRisru5tdTmQYGRe87svWp2yovBZKBy2UVzVRpqHxXlkzuU19UH3l1Kxb_EqX1h43-njLRmlsNcKE7ykfWFgQqcHRbzcuSLqX6BdrTLndhjwl4rh8_nVKsIQBimdwg"
                   width={40}
                   height={40}
                 />
                 <Image
-                  alt="Doctor profile"
+                  alt="Healthcare provider"
                   className="w-10 h-10 rounded-full border-3 border-white dark:border-background-dark ring-2 ring-primary/20"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9i-bmyfENBE3I_d-yETctnS4nK1w6QgFUSesSnDkUDS_EQtawn-Nix_m9B1j8b6n06Kj3qMLPEYtUQBvohwKwdOLUwLuwDBPX9BPg4RDhjfyxhspAcbPfZ2hpYceUK3iZZ5hn4a3IyexEF_nBLGT0moIpHV7WKipO07UIXUGbXqpiNY4q-qm17UqrGT5o21HOv69Ih51LyeJ9oLita-gKfGPr4Iy9o1fuBX3Y8YDwhlNEjIHhbWEVVsfoJ0fjUjfFJd1GD8KxViiS"
                   width={40}
                   height={40}
                 />
                 <Image
-                  alt="Doctor profile"
+                  alt="Healthcare provider"
                   className="w-10 h-10 rounded-full border-3 border-white dark:border-background-dark ring-2 ring-primary/20"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXreAN9MNhfb8HiDo4jWi8VzY2bxqplZOuIAxUmrgzQloPrRytk_aBiQ5CEPrvbnyMMmjxBfIw_z_8Jcf7MyTSb6WKMS0SeRSrYEpoQkLpsxGYAzUsTjrQfO8nCFXsT1iOR9Xbn6dJ9iXFyLvs49s75OKXmFXWDWLZppGFgmENiBV6YbHQEz8Q8Mn5UBrm3I6dmgRzRsTLCjy6TuJyvR2iyi-7VvSVAYG3SU3TYsMIO2jO22dtjFTdq6YMFz3GJQ411ol5LYITsk7K"
                   width={40}
@@ -97,9 +106,9 @@ export default function HeroSection() {
               </div>
               <div className="text-sm text-slate-600 dark:text-slate-400 text-center lg:text-left">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <div className="flex text-yellow-400">
+                  <div className="flex text-yellow-400" role="img" aria-label="5 star rating">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className="material-icons-round text-base">star</span>
+                      <span key={i} className="material-icons-round text-base" aria-hidden="true">star</span>
                     ))}
                   </div>
                   <span className="font-semibold text-slate-900 dark:text-white">4.9</span>
@@ -110,7 +119,7 @@ export default function HeroSection() {
           </div>
 
           {/* Visual Content - Improved for all screens */}
-          <div className="relative lg:h-[600px] h-[400px] md:h-[500px]">
+          <div className="relative lg:h-[600px] h-[400px] md:h-[500px]" aria-hidden="true">
             {/* Gradient Background */}
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-cyan-400/10 rounded-3xl"></div>
             
@@ -144,14 +153,14 @@ export default function HeroSection() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="font-semibold text-sm text-slate-900 dark:text-white">High Risk Alert</h4>
-                        <span className="text-xs text-red-600 dark:text-red-400 font-medium">2 min ago</span>
+                        <time className="text-xs text-red-600 dark:text-red-400 font-medium">2 min ago</time>
                       </div>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Patient Sarah K. - Elevated BP detected</p>
                       <div className="flex gap-2">
-                        <button className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-xs font-semibold rounded-lg transition-colors">
+                        <button className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-xs font-semibold rounded-lg transition-colors" type="button">
                           View Details
                         </button>
-                        <button className="px-3 py-1.5 border border-slate-300 dark:border-white/20 text-slate-700 dark:text-white text-xs font-semibold rounded-lg hover:border-primary hover:text-primary transition-colors">
+                        <button className="px-3 py-1.5 border border-slate-300 dark:border-white/20 text-slate-700 dark:text-white text-xs font-semibold rounded-lg hover:border-primary hover:text-primary transition-colors" type="button">
                           Call Patient
                         </button>
                       </div>

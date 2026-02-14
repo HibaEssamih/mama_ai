@@ -1,6 +1,9 @@
 export default function CTASection() {
   return (
-    <section className="py-16 sm:py-20 md:py-24 relative bg-gradient-to-b from-background-dark to-card-dark">
+    <section 
+      id="cta"
+      className="py-16 sm:py-20 md:py-24 relative bg-gradient-to-b from-background-dark to-card-dark"
+    >
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -z-10"></div>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -12,37 +15,50 @@ export default function CTASection() {
         </p>
 
         <div className="bg-card-dark backdrop-blur-sm border border-gray-700 p-2 rounded-xl shadow-2xl" style={{ backgroundColor: 'rgba(22, 42, 45, 0.5)' }}>
-          <form className="flex flex-col gap-2">
+          <form className="flex flex-col gap-2" method="POST" action="/api/demo-request">
             <div className="flex flex-col sm:flex-row gap-2">
+              <label htmlFor="name" className="sr-only">Your Name</label>
               <input
+                id="name"
+                name="name"
                 className="flex-1 bg-background-dark border-0 text-white placeholder-gray-500 px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-sm focus:ring-2 focus:ring-primary transition-all outline-none"
                 style={{ backgroundColor: 'rgba(16, 31, 34, 0.8)' }}
                 placeholder="Your Name"
                 type="text"
+                required
               />
+              <label htmlFor="clinic" className="sr-only">Clinic or Organization</label>
               <input
+                id="clinic"
+                name="clinic"
                 className="flex-1 bg-background-dark border-0 text-white placeholder-gray-500 px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-sm focus:ring-2 focus:ring-primary transition-all outline-none"
                 style={{ backgroundColor: 'rgba(16, 31, 34, 0.8)' }}
                 placeholder="Clinic / Organization"
                 type="text"
+                required
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
+              <label htmlFor="email" className="sr-only">Email Address</label>
               <input
+                id="email"
+                name="email"
                 className="flex-1 bg-background-dark border-0 text-white placeholder-gray-500 px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-sm focus:ring-2 focus:ring-primary transition-all outline-none"
                 style={{ backgroundColor: 'rgba(16, 31, 34, 0.8)' }}
                 placeholder="Email Address"
                 type="email"
+                required
               />
               <button
-                className="bg-primary hover:bg-primary/90 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-lg transition-all duration-200 whitespace-nowrap shadow-[0_0_20px_rgba(17,180,212,0.3)] hover:shadow-[0_0_30px_rgba(17,180,212,0.5)] text-sm sm:text-base"
-                type="button"
+                className="bg-primary hover:bg-primary/90 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-lg transition-all duration-200 whitespace-nowrap shadow-[0_0_20px_rgba(17,180,212,0.3)] hover:shadow-[0_0_30px_rgba(17,180,212,0.5)] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card-dark"
+                type="submit"
               >
                 Request Demo
               </button>
             </div>
           </form>
         </div>
+
         <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500">
           Free pilot program available for rural health centers.
         </p>
