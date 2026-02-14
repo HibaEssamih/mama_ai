@@ -148,6 +148,20 @@ body {
   direction: ltr;
 }
 
+/* Timeline custom scrollbar */
+.timeline-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.timeline-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.timeline-scroll::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 20px;
+}
+
 /* Ensure all interactive elements have pointer cursor */
 button:not(:disabled),
 a,

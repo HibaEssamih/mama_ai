@@ -90,3 +90,58 @@ export interface Doctor {
   avatarUrl: string;
   email: string;
 }
+
+// Patient Profile Types
+export interface PatientProfile {
+  id: string;
+  name: string;
+  age: number;
+  avatarUrl: string;
+  riskLevel: "high" | "medium" | "low";
+  gestationalWeek: number;
+  trimester: number;
+  bloodType: string;
+  patientId: string;
+  nextCheckup: string;
+  assignedDoctor: string;
+}
+
+export interface VitalSign {
+  label: string;
+  value: string;
+  unit: string;
+  status: "normal" | "warning" | "critical";
+  trend?: "up" | "down" | "stable";
+  trendValue?: string;
+  note?: string;
+  progress?: number; // 0-100 for progress bars
+}
+
+export interface ClinicalHistoryItem {
+  id: string;
+  date: string;
+  description: string;
+}
+
+export interface VoiceMessage {
+  id: string;
+  timestamp: string;
+  transcript: string;
+  audioUrl?: string;
+  duration: string;
+  tags: string[];
+  priority: "high" | "medium" | "low";
+  highlightedTerms?: string[];
+}
+
+export interface EmergencyContact {
+  name: string;
+  relationship: string;
+  initials: string;
+  phone?: string;
+}
+
+export interface RiskTrendData {
+  date: string;
+  riskScore: number; // 0-100
+}
