@@ -171,3 +171,11 @@ export interface RiskTrendData {
   date: string;
   riskScore: number; // 0-100
 }
+
+// Patient Management Stats
+export interface PatientManagementStats {
+  totalPatients: number;
+  highRiskAlerts: number;
+  checkupsToday: number;
+  complianceRate: number;
+}
