@@ -1,7 +1,7 @@
 // lib/generateMamaResponse.ts
 // Supports OpenAI (GPT-4o etc.) or MiniMax. Set OPENAI_API_KEY to use OpenAI.
 
-const MAMA_SYSTEM_PROMPT = `You are Mama AI, a warm and supportive Moroccan pregnancy assistant. 
+const MAMA_SYSTEM_BASE = `You are Mama AI, a warm and supportive Moroccan pregnancy assistant. 
 You speak fluently in Darija (Moroccan Arabic) and make pregnant people feel heard and safe.
 
 Your role:
@@ -19,22 +19,41 @@ export type PatientContext = {
   name?: string;
   gestational_week?: number;
   risk_level?: string;
+  doctor_notes?: string;
+  chat_history?: string;
   [key: string]: string | number | boolean | undefined;
 };
 
-function buildUserPrompt(message: string, patientContext: PatientContext): string {
-  const contextDetails = Object.entries(patientContext)
-    .filter(([, v]) => v != null)
-    .map(([k, v]) => `${k}: ${v}`)
-    .join(", ");
-  return contextDetails
-    ? `Patient Info: (${contextDetails})\nPatient Message: ${message}`
-    : message;
+/** Build system instructions including patient context, doctor notes, and conversation history. */
+function buildSystemPrompt(patientContext: PatientContext): string {
+  const { doctor_notes, chat_history, name, risk_level, gestational_week } = patientContext;
+  const parts = [MAMA_SYSTEM_BASE];
+
+  const contextParts: string[] = [];
+  if (name) contextParts.push(`Patient name: ${name}`);
+  if (gestational_week != null) contextParts.push(`Gestational week: ${gestational_week}`);
+  if (risk_level) contextParts.push(`Current risk level: ${risk_level}`);
+  if (doctor_notes) contextParts.push(`Doctor / clinical notes: ${doctor_notes}`);
+  if (chat_history?.trim()) {
+    contextParts.push(`Recent conversation (use for continuity):\n${chat_history.trim()}`);
+  }
+
+  if (contextParts.length > 0) {
+    parts.push("\n--- Current context (use this to personalize your reply) ---");
+    parts.push(contextParts.join("\n"));
+  }
+
+  return parts.join("\n");
 }
 
-async function callOpenAI(userPrompt: string): Promise<string> {
+/** User prompt is only the latest message. */
+function buildUserPrompt(message: string): string {
+  return message.trim();
+}
+
+async function callOpenAI(systemPrompt: string, userPrompt: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL ?? "gpt-4o";
+  const model = process.env.OPENAI_MODEL ?? "gpt-4o-min";
   console.log("[Mama AI] Using OpenAI, model:", model);
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -46,7 +65,7 @@ async function callOpenAI(userPrompt: string): Promise<string> {
     body: JSON.stringify({
       model,
       messages: [
-        { role: "system", content: MAMA_SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
       temperature: 0.7,
@@ -77,7 +96,7 @@ async function callOpenAI(userPrompt: string): Promise<string> {
   return FALLBACK_DARIJA;
 }
 
-async function callMiniMax(userPrompt: string): Promise<string> {
+async function callMiniMax(systemPrompt: string, userPrompt: string): Promise<string> {
   const model = process.env.MINIMAX_MODEL ?? "abab6.5s-chat";
   console.log("[Mama AI] Using MiniMax, model:", model);
 
@@ -90,7 +109,7 @@ async function callMiniMax(userPrompt: string): Promise<string> {
     body: JSON.stringify({
       model,
       messages: [
-        { role: "system", content: MAMA_SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
       temperature: 0.7,
@@ -128,11 +147,12 @@ export async function generateMamaResponse(
   patientContext: PatientContext = {}
 ): Promise<string> {
   console.log("[Mama AI] generateMamaResponse called, message length:", message.length, "context keys:", Object.keys(patientContext).join(", ") || "none");
-  const userPrompt = buildUserPrompt(message, patientContext);
+  const systemPrompt = buildSystemPrompt(patientContext);
+  const userPrompt = buildUserPrompt(message);
 
   if (process.env.OPENAI_API_KEY) {
     try {
-      return await callOpenAI(userPrompt);
+      return await callOpenAI(systemPrompt, userPrompt);
     } catch (err) {
       console.error("[Mama AI] callOpenAI failed:", err instanceof Error ? err.message : String(err));
       throw err;
@@ -140,7 +160,7 @@ export async function generateMamaResponse(
   }
   if (process.env.MINIMAX_API_KEY) {
     try {
-      return await callMiniMax(userPrompt);
+      return await callMiniMax(systemPrompt, userPrompt);
     } catch (err) {
       console.error("[Mama AI] callMiniMax failed:", err instanceof Error ? err.message : String(err));
       throw err;

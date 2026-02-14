@@ -1,86 +1,116 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+/**
+ * Patients list: real data from Supabase.
+ * Data mapping (DB → UI, @/types Patient):
+ *   full_name or name → Patient Name
+ *   risk_level        → Status / Risk Level (badge)
+ *   gestational_week  → Progress bar (40-week term = 100%)
+ *   national_id      → Patient ID display (fallback: id slice)
+ */
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { mockPatientManagementData, patientManagementStats } from "@/lib/mockPatientManagement";
-import { 
-  StatsBar, 
-  SearchFiltersBar, 
-  PatientGrid, 
-  PaginationControls, 
-  EmptyState 
+import { createClient } from "@/utils/supabase/client";
+import { normalizePatient } from "@/lib/patients";
+import type { Patient } from "@/types";
+import {
+  StatsBar,
+  SearchFiltersBar,
+  PatientGrid,
+  PatientGridSkeleton,
+  PaginationControls,
+  EmptyState,
 } from "@/components/patient-management";
-import type { PatientManagementCard } from "@/types";
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
 
 const ITEMS_PER_PAGE = 12;
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-const filterPatients = (
-  patients: PatientManagementCard[],
+/** Search: full_name or name, phone_number. High Risk toggle: risk_level in ('high', 'critical'). */
+function filterPatients(
+  patients: Patient[],
   query: string,
   showHighRiskOnly: boolean,
   showOverdueOnly: boolean
-): PatientManagementCard[] => {
-  return patients.filter((patient) => {
+): Patient[] {
+  const q = query.trim().toLowerCase();
+  return patients.filter((p) => {
+    const name = (p.full_name ?? p.name ?? "").toLowerCase();
     const matchesSearch =
-      !query ||
-      patient.name.toLowerCase().includes(query.toLowerCase()) ||
-      patient.patientId.toLowerCase().includes(query.toLowerCase()) ||
-      patient.aiAnalysis.toLowerCase().includes(query.toLowerCase()) ||
-      patient.status.toLowerCase().includes(query.toLowerCase());
+      !q ||
+      name.includes(q) ||
+      p.phone_number.toLowerCase().includes(q) ||
+      p.id.toLowerCase().includes(q) ||
+      (p.national_id ?? "").toLowerCase().includes(q);
 
     const matchesHighRisk =
-      !showHighRiskOnly ||
-      patient.status === "high-risk" ||
-      patient.status === "due-soon";
+      !showHighRiskOnly || p.risk_level === "high" || p.risk_level === "critical";
 
-    const matchesOverdue = !showOverdueOnly || patient.isOverdue;
+    const isOverdue = p.due_date != null && new Date(p.due_date) < new Date();
+    const matchesOverdue = !showOverdueOnly || isOverdue;
 
     return matchesSearch && matchesHighRisk && matchesOverdue;
   });
-};
-
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
+}
 
 export default function PatientsPage() {
   const router = useRouter();
-  
-  // State
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showHighRiskOnly, setShowHighRiskOnly] = useState(false);
   const [showOverdueOnly, setShowOverdueOnly] = useState(false);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
-  // Memoized data
+  const fetchPatients = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("patients")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const list = (data ?? []).map((row) =>
+        normalizePatient(row as Record<string, unknown>)
+      );
+      setPatients(list);
+    } catch (err) {
+      console.error("Failed to fetch patients:", err);
+      setPatients([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPatients();
+  }, [fetchPatients]);
+
   const filteredPatients = useMemo(
-    () => filterPatients(mockPatientManagementData, searchQuery, showHighRiskOnly, showOverdueOnly),
-    [searchQuery, showHighRiskOnly, showOverdueOnly]
+    () => filterPatients(patients, searchQuery, showHighRiskOnly, showOverdueOnly),
+    [patients, searchQuery, showHighRiskOnly, showOverdueOnly]
   );
 
   const paginatedPatients = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredPatients.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredPatients.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredPatients, currentPage]);
 
-  const totalPages = Math.ceil(filteredPatients.length / ITEMS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filteredPatients.length / ITEMS_PER_PAGE));
 
-  const highRiskCount = mockPatientManagementData.filter(
-    (p) => p.status === "high-risk" || p.status === "due-soon"
-  ).length;
+  const highRiskCount = useMemo(
+    () => patients.filter((p) => p.risk_level === "high" || p.risk_level === "critical").length,
+    [patients]
+  );
 
-  const overdueCount = mockPatientManagementData.filter((p) => p.isOverdue).length;
 
-  // Event handlers
+  const handleRefresh = useCallback(() => {
+    fetchPatients(true);
+  }, [fetchPatients]);
+
   const handlePatientClick = useCallback(
     (patientId: string) => {
       router.push(`/dashboard/patients/${patientId}`);
@@ -104,28 +134,8 @@ export default function PatientsPage() {
     setCurrentPage(1);
   }, []);
 
-  const handlePreviousPage = useCallback(() => {
-    setCurrentPage((p) => Math.max(1, p - 1));
-  }, []);
-
-  const handleNextPage = useCallback(() => {
-    setCurrentPage((p) => Math.min(totalPages, p + 1));
-  }, [totalPages]);
-
   const toggleHighRiskFilter = useCallback(() => {
     setShowHighRiskOnly((prev) => !prev);
-    setShowOverdueOnly(false);
-    setCurrentPage(1);
-  }, []);
-
-  const toggleOverdueFilter = useCallback(() => {
-    setShowOverdueOnly((prev) => !prev);
-    setShowHighRiskOnly(false);
-    setCurrentPage(1);
-  }, []);
-
-  const clearFilters = useCallback(() => {
-    setShowHighRiskOnly(false);
     setShowOverdueOnly(false);
     setCurrentPage(1);
   }, []);
@@ -134,45 +144,51 @@ export default function PatientsPage() {
     setExpandedCard((prev) => (prev === id ? null : id));
   }, []);
 
-  const showAddCard = !searchQuery && !showHighRiskOnly && !showOverdueOnly && currentPage === 1;
+  const showAddCard =
+    !searchQuery && !showHighRiskOnly && !showOverdueOnly && currentPage === 1;
+  const hasActiveFilters = searchQuery || showHighRiskOnly || showOverdueOnly;
+  const showEmptyDb = !loading && !refreshing && !hasActiveFilters && patients.length === 0;
+  const showEmptyResults = !loading && !refreshing && hasActiveFilters && filteredPatients.length === 0;
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
-      {/* Stats Bar */}
-      <StatsBar stats={patientManagementStats} />
+      <StatsBar patients={patients} />
 
-      {/* Search & Filters */}
       <SearchFiltersBar
         searchQuery={searchQuery}
         onSearchChange={handleSearch}
         onClearSearch={clearSearch}
         showHighRiskOnly={showHighRiskOnly}
-        showOverdueOnly={showOverdueOnly}
         onToggleHighRisk={toggleHighRiskFilter}
-        onToggleOverdue={toggleOverdueFilter}
-        onClearFilters={clearFilters}
         onNewPatient={handleNewPatient}
         highRiskCount={highRiskCount}
-        overdueCount={overdueCount}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
       />
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-10">
         <div className="max-w-[1600px] mx-auto w-full">
-          {/* Search Results Info */}
-          {(searchQuery || showHighRiskOnly || showOverdueOnly) && (
+          {hasActiveFilters && (
             <div className="mb-4 text-sm text-slate-600">
               Found <strong className="text-slate-900">{filteredPatients.length}</strong> patient
-              {filteredPatients.length !== 1 ? 's' : ''}
+              {filteredPatients.length !== 1 ? "s" : ""}
               {searchQuery && ` matching "${searchQuery}"`}
             </div>
           )}
 
-          {/* Patient Grid or Empty State */}
-          {filteredPatients.length === 0 ? (
+          {loading ? (
+            <PatientGridSkeleton />
+          ) : showEmptyDb ? (
+            <EmptyState
+              isEmptyDatabase
+              onClearSearch={clearSearch}
+              onNewPatient={handleNewPatient}
+            />
+          ) : showEmptyResults ? (
             <EmptyState searchQuery={searchQuery} onClearSearch={clearSearch} />
           ) : (
             <>
+            <div className="mt-10">
               <PatientGrid
                 patients={paginatedPatients}
                 expandedCard={expandedCard}
@@ -181,26 +197,24 @@ export default function PatientsPage() {
                 onNewPatient={handleNewPatient}
                 showAddCard={showAddCard}
               />
-
-              {/* Pagination */}
+              </div>
               <PaginationControls
                 currentPage={currentPage}
                 totalPages={totalPages}
                 totalItems={filteredPatients.length}
                 currentItemsCount={paginatedPatients.length}
-                onPreviousPage={handlePreviousPage}
-                onNextPage={handleNextPage}
+                onPreviousPage={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onNextPage={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               />
             </>
           )}
         </div>
       </main>
 
-      {/* FAB for mobile */}
       <button
+        type="button"
         onClick={handleNewPatient}
         className="fixed bottom-8 right-8 lg:hidden w-14 h-14 bg-teal-500 text-white rounded-full shadow-lg shadow-teal-500/30 flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-        type="button"
         aria-label="Add new patient"
       >
         <span className="material-symbols-outlined text-2xl">add</span>

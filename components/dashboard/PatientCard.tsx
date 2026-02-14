@@ -10,23 +10,38 @@ interface PatientCardProps {
   patient: DashboardPatient;
 }
 
-const RISK_COLORS = {
+// Ensure every potential string key has a mapping, 
+// including old schema values like 'stable' or 'normal'
+const RISK_COLORS: Record<string, { border: string; badge: string; indicator: string; chart: string }> = {
+  low: {
+    border: "bg-emerald-500",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    indicator: "bg-emerald-500",
+    chart: "#10b981",
+  },
+  medium: {
+    border: "bg-amber-500",
+    badge: "bg-amber-50 text-amber-700 border-amber-100",
+    indicator: "bg-amber-500",
+    chart: "#f59e0b",
+  },
+  high: {
+    border: "bg-orange-500",
+    badge: "bg-orange-50 text-orange-700 border-orange-100",
+    indicator: "bg-orange-500",
+    chart: "#ea580c",
+  },
   critical: {
     border: "bg-red-500",
     badge: "bg-red-50 text-red-700 border-red-100",
     indicator: "bg-red-500",
     chart: "#ef4444",
   },
-  warning: {
-    border: "bg-amber-500",
-    badge: "bg-amber-50 text-amber-700 border-amber-100",
-    indicator: "bg-amber-500",
-    chart: "#f59e0b",
-  },
+  // Fallbacks for older data
   stable: {
-    border: "bg-green-500",
-    badge: "bg-green-50 text-green-700 border-green-100",
-    indicator: "bg-green-500",
+    border: "bg-emerald-500",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    indicator: "bg-emerald-500",
     chart: "#10b981",
   },
   normal: {
@@ -35,20 +50,41 @@ const RISK_COLORS = {
     indicator: "bg-blue-500",
     chart: "#3b82f6",
   },
-} as const;
+};
+
+function formatPhoneDisplay(phoneNumber: string): string {
+  if (!phoneNumber) return "";
+  const digits = phoneNumber.replace(/\D/g, "");
+  if (digits.startsWith("212") && digits.length >= 12) {
+    return `+212 ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
+  }
+  return phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
+}
 
 export default function PatientCard({ patient }: PatientCardProps) {
   const router = useRouter();
   const [isCallLoading, setIsCallLoading] = useState(false);
   const [isDispatchLoading, setIsDispatchLoading] = useState(false);
-  const colors = RISK_COLORS[patient.riskLevel];
+
+  // Fallback to 'low' if risk_level is undefined or not in the map
+  const riskKey = (patient.risk_level || "low").toLowerCase();
+  const colors = RISK_COLORS[riskKey] || RISK_COLORS.low;
+  
+  const displayName = patient.full_name || patient.name || "";
+  const isHighRisk = riskKey === "high" || riskKey === "critical";
+  
+  const medicalNotes = patient.medical_history?.notes;
+  const alertMessage = patient.alert?.message ?? "";
+  const aiInsightText = medicalNotes
+    ? `${alertMessage}${alertMessage ? " • " : ""}${medicalNotes.length > 80 ? medicalNotes.slice(0, 80) + "…" : medicalNotes}`
+    : alertMessage;
+  const hasEmergency = isHighRisk && (patient.emergency_contact_name || patient.emergency_contact_phone);
+  const hasGestation = patient.gestational_week != null || patient.trimester != null;
 
   const handleCall = async () => {
     setIsCallLoading(true);
     try {
-      // TODO: Implement video call functionality
-      console.log("Initiating call with:", patient.name);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       router.push(`/dashboard/call/${patient.id}`);
     } finally {
       setIsCallLoading(false);
@@ -56,187 +92,118 @@ export default function PatientCard({ patient }: PatientCardProps) {
   };
 
   const handleDispatch = async () => {
-    if (!confirm(`Dispatch emergency services for ${patient.name}? This will alert emergency responders immediately.`)) {
-      return;
-    }
-    
+    if (!confirm(`Dispatch emergency services for ${displayName}?`)) return;
     setIsDispatchLoading(true);
     try {
-      // TODO: Implement emergency dispatch
-      console.log("Dispatching emergency services for:", patient.name);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       alert("Emergency services have been dispatched.");
     } finally {
       setIsDispatchLoading(false);
     }
   };
 
-  const handleSchedule = () => {
-    // Navigate to scheduling page
-    router.push(`/dashboard/patients/${patient.id}/schedule`);
-  };
-
   return (
-    <article 
-      className="bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex overflow-hidden group"
-      aria-label={`Patient ${patient.name}, ${patient.alert.type} priority`}
-    >
-      {/* Risk Level Indicator */}
-      <div 
-        className={`w-1.5 ${colors.border} shrink-0`}
-        aria-hidden="true"
-      />
+    <article className="bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex overflow-hidden">
+      {/* Risk Indicator Strip */}
+      <div className={`w-1.5 ${colors.border} shrink-0`} aria-hidden="true" />
 
-      {/* Content */}
-      <div className="flex-1 p-4 flex flex-col md:flex-row md:items-center gap-4">
-        {/* Patient Info */}
-        <div className="flex items-start gap-3 w-full md:w-1/4 min-w-[200px]">
+      <div className="flex-1 p-4 flex flex-col md:flex-row md:items-center gap-4 min-w-0">
+        {/* Profile Section */}
+        <div className="flex items-start gap-3 w-full md:w-[280px] min-w-0">
           <div className="relative shrink-0">
-            <Image
-              alt={`${patient.name}'s profile photo`}
-              className="w-12 h-12 rounded bg-slate-100 object-cover"
-              src={patient.avatarUrl}
-              width={48}
-              height={48}
-            />
-            <span 
-              className={`absolute -bottom-1 -right-1 w-3 h-3 ${colors.indicator} rounded-full border-2 border-white`}
-              role="img"
-              aria-label={`${patient.riskLevel} risk level`}
-            />
+            <div className="w-12 h-12 rounded bg-slate-100 flex items-center justify-center overflow-hidden">
+              {patient.avatarUrl ? (
+                 <Image src={patient.avatarUrl} alt="" width={48} height={48} className="object-cover" />
+              ) : (
+                <span className="text-slate-400 font-bold">{displayName[0]}</span>
+              )}
+            </div>
+            <span className={`absolute -bottom-1 -right-1 w-3 h-3 ${colors.indicator} rounded-full border-2 border-white`} />
           </div>
-          <div>
-            <h3 className="font-bold text-slate-900 text-base leading-tight">
-              <Link 
-                href={`/dashboard/patients/${patient.id}`}
-                className="hover:text-sky-600 active:text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 rounded px-1 -mx-1 inline-block transition-colors"
-              >
-                {patient.name}
+          
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-slate-900 text-base leading-tight truncate">
+              <Link href={`/dashboard/patients/${patient.id}`} className="hover:text-sky-600 transition-colors">
+                {displayName || "—"}
               </Link>
             </h3>
-            <div className="text-xs text-slate-500 mt-0.5">
-              <span className="sr-only">Patient ID:</span>
-              ID: {patient.patientId} • {patient.gestationalWeek} Weeks
+            <div className="text-xs text-slate-500 mt-0.5 space-y-0.5">
+              {hasGestation && (
+                <p>
+                  {patient.trimester != null ? `T${patient.trimester}` : ""}
+                  {patient.trimester != null && patient.gestational_week != null ? " • " : ""}
+                  {patient.gestational_week != null ? `Week ${patient.gestational_week}` : ""}
+                </p>
+              )}
+              {patient.location_address && (
+                <p className="truncate text-slate-400">{patient.location_address}</p>
+              )}
+              {patient.blood_type && <p>Blood: {patient.blood_type}</p>}
+              {patient.phone_number && (
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium">{formatPhoneDisplay(patient.phone_number)}</span>
+                  {patient.has_smartphone && <span className="text-emerald-600 text-[10px] font-bold uppercase">WhatsApp</span>}
+                </div>
+              )}
             </div>
-            <time 
-              className="text-[10px] font-mono text-slate-400 mt-0.5 block"
-              dateTime={patient.lastUpdate}
-            >
-              Updated: {patient.lastUpdate}
-            </time>
           </div>
         </div>
 
-        {/* Alert Details */}
-        <div className="flex-1 min-w-[250px] border-l border-slate-100 pl-4 md:border-l-0 md:pl-0 lg:border-l lg:pl-6">
-          <div className="flex items-center gap-2 mb-1">
-            <span 
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wide border ${colors.badge}`}
-              role="status"
-              aria-label={`Alert type: ${patient.alert.type}`}
-            >
-              <span className="material-symbols-outlined text-[14px]" aria-hidden="true">
-                warning
-              </span>
-              {patient.alert.type}
-            </span>
-            <span className="text-xs font-medium text-slate-500">
-              {patient.alert.category}
-            </span>
-          </div>
-          <p className="text-sm text-slate-700 leading-snug">
-            <strong className="font-semibold text-slate-900">AI Insight:</strong> {patient.alert.message}
-          </p>
-        </div>
-
-        {/* Trend Chart */}
-        {patient.trendData && (
-          <div className="w-full md:w-48 h-12 relative shrink-0">
-            <div className="flex justify-between text-[10px] text-slate-400 font-medium mb-1 uppercase">
-              <span>{patient.metrics[0]?.label}</span>
-              <span 
-                className={`${patient.riskLevel === 'critical' || patient.riskLevel === 'warning' ? 'text-red-600' : 'text-slate-600'} font-bold`}
-                aria-label={`Current value: ${patient.metrics[0]?.value}`}
-              >
-                {patient.metrics[0]?.value}
-              </span>
-            </div>
-            <svg 
-              className="w-full h-8 overflow-visible" 
-              preserveAspectRatio="none" 
-              viewBox="0 0 300 60"
-              role="img"
-              aria-label={`${patient.metrics[0]?.label} trend chart`}
-            >
-              <title>{`${patient.metrics[0]?.label} trend over time`}</title>
-              <path
-                d={`M${patient.trendData.map((y, i) => `${(i / (patient.trendData!.length - 1)) * 300},${y}`).join(' L')}`}
-                fill="none"
-                stroke={colors.chart}
-                strokeLinecap="round"
-                strokeWidth="2"
-              />
-              <circle 
-                cx="300" 
-                cy={patient.trendData[patient.trendData.length - 1]} 
-                fill={colors.chart} 
-                r="3"
-              />
-            </svg>
+        {/* Emergency Contact Quick View — only when we have data */}
+        {hasEmergency && (
+          <div className="flex-1 min-w-[180px] border-l border-slate-100 pl-4 hidden lg:block">
+            <p className="text-[10px] font-semibold uppercase text-slate-400">Emergency Contact</p>
+            {patient.emergency_contact_name && (
+              <p className="text-sm font-medium text-slate-800 truncate">{patient.emergency_contact_name}</p>
+            )}
+            {patient.emergency_contact_phone && (
+              <a href={`tel:${patient.emergency_contact_phone.replace(/\D/g, "")}`} className="text-xs text-sky-600 hover:underline">
+                {formatPhoneDisplay(patient.emergency_contact_phone)}
+              </a>
+            )}
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 justify-end w-full md:w-auto shrink-0 border-t md:border-t-0 pt-3 md:pt-0 mt-2 md:mt-0">
-          <button 
-            className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:text-sky-600 hover:border-sky-600 active:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            type="button"
+        {/* Insight Section */}
+        <div className="flex-1 min-w-[250px] border-l border-slate-100 pl-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border ${colors.badge}`}>
+              {riskKey}
+            </span>
+            <span className="text-[11px] text-slate-500 font-medium">{patient.alert?.category || "General"}</span>
+          </div>
+          {(alertMessage || medicalNotes) && (
+            <p className="text-sm text-slate-600 line-clamp-2">
+              <span className="font-bold text-slate-800">Insight:</span> {aiInsightText || "—"}
+            </p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <button
             onClick={handleCall}
             disabled={isCallLoading}
-            aria-label={`Call ${patient.name}`}
+            className="p-2 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-600 transition-all flex items-center gap-2 text-xs font-semibold"
           >
-            {isCallLoading ? (
-              <span className="material-symbols-outlined text-[16px] animate-spin" aria-hidden="true">
-                progress_activity
-              </span>
-            ) : (
-              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
-                videocam
-              </span>
-            )}
-            <span>{isCallLoading ? "Connecting..." : "Call"}</span>
+             <span className="material-symbols-outlined text-sm">{isCallLoading ? 'progress_activity' : 'videocam'}</span>
+             Call
           </button>
-          {patient.riskLevel === "critical" && (
-            <button 
-              className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md bg-red-500 text-white text-xs font-semibold hover:bg-red-600 active:bg-red-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              type="button"
+          
+          {riskKey === "critical" ? (
+            <button
               onClick={handleDispatch}
               disabled={isDispatchLoading}
-              aria-label={`Dispatch emergency services for ${patient.name}`}
+              className="px-3 py-2 rounded-md bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-all"
             >
-              {isDispatchLoading ? (
-                <span className="material-symbols-outlined text-[16px] animate-spin" aria-hidden="true">
-                  progress_activity
-                </span>
-              ) : (
-                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
-                  emergency
-                </span>
-              )}
-              <span>{isDispatchLoading ? "Dispatching..." : "Dispatch"}</span>
+              Dispatch
             </button>
-          )}
-          {patient.riskLevel === "warning" && (
-            <button 
-              className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 cursor-pointer"
-              type="button"
-              onClick={handleSchedule}
-              aria-label={`Schedule appointment for ${patient.name}`}
+          ) : (
+            <button
+              onClick={() => router.push(`/dashboard/patients/${patient.id}/schedule`)}
+              className="px-3 py-2 rounded-md border border-slate-200 text-xs font-semibold hover:bg-slate-50"
             >
-              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
-                schedule
-              </span>
-              <span>Schedule</span>
+              Schedule
             </button>
           )}
         </div>

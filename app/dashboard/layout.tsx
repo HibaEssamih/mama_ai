@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DashboardSidebar, DashboardHeader } from "@/components/dashboard";
-import { mockDoctor, mockStats } from "@/lib/mockData";
+import { mockDoctor } from "@/lib/mockData";
 
 export const metadata: Metadata = {
   title: "Clinical Dashboard | MamaGuard",
@@ -14,10 +14,10 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen flex overflow-hidden bg-slate-50">
-      <DashboardSidebar doctor={mockDoctor} stats={mockStats} />
-      
+      <DashboardSidebar doctor={mockDoctor} />
+
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
-        <DashboardHeader stats={mockStats} />
+        <DashboardHeader />
         {children}
       </main>
     </div>
