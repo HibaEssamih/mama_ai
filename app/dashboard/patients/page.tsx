@@ -8,11 +8,12 @@
  *   gestational_week  → Progress bar (40-week term = 100%)
  *   national_id      → Patient ID display (fallback: id slice)
  */
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { normalizePatient } from "@/lib/patients";
 import type { Patient } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 import {
   StatsBar,
   SearchFiltersBar,
@@ -55,46 +56,113 @@ function filterPatients(
 
 export default function PatientsPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showHighRiskOnly, setShowHighRiskOnly] = useState(false);
   const [showOverdueOnly, setShowOverdueOnly] = useState(false);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  const fetchPatients = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("patients")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      const list = (data ?? []).map((row) =>
-        normalizePatient(row as Record<string, unknown>),
-      );
-      setPatients(list);
-    } catch (err) {
-      console.error("Failed to fetch patients:", err);
-      setPatients([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+  const fetchPatients = useCallback(
+    async (isRefresh = false) => {
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError(null);
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("patients")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        const list = (data ?? []).map((row) =>
+          normalizePatient(row as Record<string, unknown>),
+        );
+        setPatients(list);
+        if (isRefresh) {
+          toast({
+            title: "Patients updated",
+            description: "Patient list has been refreshed successfully.",
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch patients:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load patients";
+        setError(errorMessage);
+        setPatients([]);
+        toast({
+          title: "Error loading patients",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [toast],
+  );
 
+  // Initial fetch and real-time subscription
   useEffect(() => {
     fetchPatients();
+
+    // Set up real-time subscription
+    const supabase = createClient();
+    const channel = supabase
+      .channel("patients-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "patients",
+        },
+        () => {
+          // Silently refresh when changes occur
+          fetchPatients(false);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [fetchPatients]);
+
+  // Debounce search input
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 300);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
 
   const filteredPatients = useMemo(
     () =>
-      filterPatients(patients, searchQuery, showHighRiskOnly, showOverdueOnly),
-    [patients, searchQuery, showHighRiskOnly, showOverdueOnly],
+      filterPatients(
+        patients,
+        debouncedSearch,
+        showHighRiskOnly,
+        showOverdueOnly,
+      ),
+    [patients, debouncedSearch, showHighRiskOnly, showOverdueOnly],
   );
 
   const paginatedPatients = useMemo(() => {
@@ -132,7 +200,6 @@ export default function PatientsPage() {
 
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1);
   }, []);
 
   const clearSearch = useCallback(() => {
@@ -144,7 +211,11 @@ export default function PatientsPage() {
 
   const toggleHighRiskFilter = useCallback(() => {
     setShowHighRiskOnly((prev) => !prev);
-    setShowOverdueOnly(false);
+    setCurrentPage(1);
+  }, []);
+
+  const toggleOverdueFilter = useCallback(() => {
+    setShowOverdueOnly((prev) => !prev);
     setCurrentPage(1);
   }, []);
 
@@ -165,6 +236,25 @@ export default function PatientsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
+      {/* Page Header */}
+      <div className="bg-white border-b border-slate-200 px-6 py-5">
+        <div className="max-w-[1600px] mx-auto">
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-bold text-slate-900">
+              Patient Management
+            </h1>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-100 rounded-full">
+              <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
+              <span className="text-xs font-medium text-green-700">Live</span>
+            </div>
+          </div>
+          <p className="text-sm text-slate-600">
+            {patients.length} total patients • {highRiskCount} high risk
+            {hasActiveFilters && ` • ${filteredPatients.length} filtered`}
+          </p>
+        </div>
+      </div>
+
       <StatsBar patients={patients} />
 
       <SearchFiltersBar
@@ -173,6 +263,8 @@ export default function PatientsPage() {
         onClearSearch={clearSearch}
         showHighRiskOnly={showHighRiskOnly}
         onToggleHighRisk={toggleHighRiskFilter}
+        showOverdueOnly={showOverdueOnly}
+        onToggleOverdue={toggleOverdueFilter}
         onNewPatient={handleNewPatient}
         highRiskCount={highRiskCount}
         refreshing={refreshing}
@@ -189,7 +281,15 @@ export default function PatientsPage() {
               </strong>{" "}
               patient
               {filteredPatients.length !== 1 ? "s" : ""}
-              {searchQuery && ` matching "${searchQuery}"`}
+              {debouncedSearch && ` matching "${debouncedSearch}"`}
+              {showHighRiskOnly && " (high risk)"}
+              {showOverdueOnly && " (overdue)"}
+            </div>
+          )}
+
+          {error && !loading && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
+              <strong>Error:</strong> {error}
             </div>
           )}
 

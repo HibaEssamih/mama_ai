@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -41,6 +42,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+        <Toaster />
       </body>
     </html>
   );
