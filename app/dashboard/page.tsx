@@ -72,12 +72,12 @@ export default function DashboardPage() {
       patients = patients.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.patientId.toLowerCase().includes(query),
+          p.id.toLowerCase().includes(query),
       );
     }
 
     if (state.filterType !== "all") {
-      patients = patients.filter((p) => p.riskLevel === state.filterType);
+      patients = patients.filter((p) => p.risk_level === state.filterType);
     }
 
     return patients;
@@ -386,18 +386,16 @@ export default function DashboardPage() {
               <Card
                 key={patient.id}
                 className={`group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer ${
-                  patient.riskLevel === "critical"
+                  patient.risk_level === "critical"
                     ? "border-red-300 hover:border-red-400 bg-gradient-to-br from-white to-red-50/20"
                     : "border-amber-200 hover:border-amber-300 bg-gradient-to-br from-white to-amber-50/20"
                 }`}
-                onClick={() =>
-                  router.push(`/dashboard/patients/${patient.patientId}`)
-                }
+                onClick={() => router.push(`/dashboard/patients/${patient.id}`)}
               >
                 {/* Priority Stripe */}
                 <div
                   className={`absolute top-0 left-0 w-1 h-full ${
-                    patient.riskLevel === "critical"
+                    patient.risk_level === "critical"
                       ? "bg-red-600"
                       : "bg-amber-500"
                   }`}
@@ -409,7 +407,7 @@ export default function DashboardPage() {
                       <div className="relative flex-shrink-0">
                         <Avatar
                           className={`h-14 w-14 ring-2 ring-offset-2 ring-offset-white shadow-md transition-all group-hover:ring-4 group-hover:shadow-lg ${
-                            patient.riskLevel === "critical"
+                            patient.risk_level === "critical"
                               ? "ring-red-400 group-hover:ring-red-500"
                               : "ring-amber-400 group-hover:ring-amber-500"
                           }`}
@@ -424,12 +422,12 @@ export default function DashboardPage() {
                             {getPatientInitials(patient.name)}
                           </AvatarFallback>
                         </Avatar>
-                        {patient.riskLevel === "critical" && (
+                        {patient.risk_level === "critical" && (
                           <div className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center animate-pulse shadow-lg ring-2 ring-white">
                             <Zap className="h-3 w-3 text-white" />
                           </div>
                         )}
-                        {patient.riskLevel === "warning" && (
+                        {patient.risk_level === "high" && (
                           <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
                             <AlertTriangle className="h-2.5 w-2.5 text-white" />
                           </div>
@@ -443,34 +441,36 @@ export default function DashboardPage() {
                         </CardTitle>
                         <div className="flex items-center gap-2 flex-wrap">
                           <CardDescription className="text-xs">
-                            {patient.patientId}
+                            {patient.id}
                           </CardDescription>
                           <span className="text-xs text-slate-400">•</span>
                           <span className="text-xs text-slate-600 flex items-center gap-1">
                             <Heart className="h-3 w-3" />
-                            Week {patient.gestationalWeek}
+                            Week {patient.gestational_week}
                           </span>
                         </div>
                       </div>
                     </div>
                     <Badge
                       variant={
-                        patient.riskLevel === "critical"
+                        patient.risk_level === "critical"
                           ? "destructive"
                           : "default"
                       }
                       className={`flex-shrink-0 ${
-                        patient.riskLevel === "warning"
+                        patient.risk_level === "high"
                           ? "bg-amber-500 text-white hover:bg-amber-600 border-0"
                           : "border-0"
                       } shadow-sm font-semibold text-[10px] uppercase tracking-wide`}
                     >
-                      {patient.riskLevel === "critical" ? (
+                      {patient.risk_level === "critical" ? (
                         <AlertCircle className="h-3 w-3 mr-1" />
                       ) : (
                         <AlertTriangle className="h-3 w-3 mr-1" />
                       )}
-                      {patient.riskLevel}
+                      {patient.risk_level === "critical"
+                        ? "critical"
+                        : "warning"}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -479,14 +479,14 @@ export default function DashboardPage() {
                   {/* Alert Box */}
                   <div
                     className={`rounded-lg p-3 ${
-                      patient.riskLevel === "critical"
+                      patient.risk_level === "critical"
                         ? "bg-red-50 border border-red-200"
                         : "bg-amber-50 border border-amber-200"
                     }`}
                   >
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-0.5">
-                        {patient.riskLevel === "critical" ? (
+                        {patient.risk_level === "critical" ? (
                           <AlertCircle className="h-4 w-4 text-red-600" />
                         ) : (
                           <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -495,7 +495,7 @@ export default function DashboardPage() {
                       <div className="flex-1 min-w-0">
                         <div
                           className={`text-xs font-semibold mb-1 ${
-                            patient.riskLevel === "critical"
+                            patient.risk_level === "critical"
                               ? "text-red-700"
                               : "text-amber-700"
                           }`}
@@ -558,7 +558,7 @@ export default function DashboardPage() {
                         size="sm"
                         className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                         onClick={(e) =>
-                          handleQuickAction(e, "call", patient.patientId)
+                          handleQuickAction(e, "call", patient.id)
                         }
                         title="Call patient"
                       >
@@ -569,7 +569,7 @@ export default function DashboardPage() {
                         size="sm"
                         className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                         onClick={(e) =>
-                          handleQuickAction(e, "message", patient.patientId)
+                          handleQuickAction(e, "message", patient.id)
                         }
                         title="Send message"
                       >
@@ -581,9 +581,7 @@ export default function DashboardPage() {
                         className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push(
-                            `/dashboard/patients/${patient.patientId}`,
-                          );
+                          router.push(`/dashboard/patients/${patient.id}`);
                         }}
                         title="View chart"
                       >
@@ -595,9 +593,7 @@ export default function DashboardPage() {
                         className="h-8 px-2 text-xs font-medium hover:bg-blue-50 hover:text-blue-600 gap-1"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push(
-                            `/dashboard/patients/${patient.patientId}`,
-                          );
+                          router.push(`/dashboard/patients/${patient.id}`);
                         }}
                       >
                         View
