@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { registerPatient } from "@/app/actions/patients";
 
 // ============================================================================
 // TYPES
@@ -58,8 +59,8 @@ export default function NewPatientPage() {
     dateOfBirth: "",
     nationalId: "",
     phone: "",
-    countryCode: "+254",
-    isWhatsApp: false,
+    countryCode: "+212",
+    isWhatsApp: true,
     alternativePhone: "",
     location: "",
     gestationalWeek: 0,
@@ -78,22 +79,33 @@ export default function NewPatientPage() {
     spousePartnerPhone: "",
     preferredCheckupTime: "",
     voiceReportingFrequency: "daily",
-    languagePreference: "en",
+    languagePreference: "darija",
     hasSmartphone: true,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = useCallback((field: keyof PatientFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
-  const handleNextStep = useCallback(() => {
+  const handleNextStep = useCallback(async () => {
     if (currentStep < 4) {
       setCurrentStep((prev) => (prev + 1) as RegistrationStep);
-    } else {
-      // Submit form
-      console.log("Submitting patient data:", formData);
-      alert("Patient registered successfully!");
-      router.push("/dashboard/patients");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const result = await registerPatient(formData);
+      if (result.success) {
+        alert("Patient registered successfully! A welcome message has been sent via WhatsApp.");
+        router.push("/dashboard/patients");
+      } else {
+        alert(`Registration failed: ${result.error}`);
+      }
+    } catch (err) {
+      alert(`Registration failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setIsSubmitting(false);
     }
   }, [currentStep, formData, router]);
 
@@ -117,40 +129,10 @@ export default function NewPatientPage() {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 lg:px-10 shadow-sm">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white shadow-lg">
-              <span className="material-symbols-outlined text-[22px]">local_hospital</span>
-            </div>
-            <div>
-              <span className="text-lg font-bold text-slate-900 tracking-tight block leading-none">
-                MamaGuard
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-5">
-          <button className="text-sm font-medium text-slate-500 hover:text-slate-800" type="button">
-            Need Help?
-          </button>
-          <div className="h-6 w-px bg-slate-200"></div>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block leading-tight">
-              <p className="text-sm font-semibold text-slate-800">Dr. Emily Chen</p>
-              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wide">Lead OB/GYN</p>
-            </div>
-            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-slate-200">
-              EC
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="flex flex-col h-screen bg-slate-50 overflow-y-scroll mt-6">
+    
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4 py-8 lg:px-8 overflow-y-auto">
+      <main className="flex-1 flex items-center justify-center px-4 py-8 lg:px-8 ">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl overflow-hidden flex flex-col md:flex-row min-h-[650px] border border-slate-200">
           {/* Sidebar - Steps */}
           <div className="w-full md:w-80 bg-slate-50 p-8 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col">
@@ -280,11 +262,18 @@ export default function NewPatientPage() {
                   )}
                   <button
                     type="submit"
-                    className="px-5 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition-all flex items-center gap-2"
+                    disabled={isSubmitting}
+                    className="px-5 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition-all flex items-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
                   >
-                    {currentStep === 4 ? 'Complete Registration' : 'Save and Continue'}
+                    {currentStep === 4
+                      ? isSubmitting
+                        ? "Registering…"
+                        : "Complete Registration"
+                      : "Save and Continue"}
                     <span className="material-symbols-outlined text-[18px]">
-                      {currentStep === 4 ? 'check_circle' : 'arrow_forward'}
+                      {currentStep === 4 && !isSubmitting
+                        ? "check_circle"
+                        : "arrow_forward"}
                     </span>
                   </button>
                 </div>
@@ -383,10 +372,11 @@ function StepPersonalInfo({ formData, onChange }: StepProps) {
                 value={formData.countryCode}
                 onChange={(e) => onChange("countryCode", e.target.value)}
               >
-                <option>+254</option>
-                <option>+255</option>
-                <option>+256</option>
-                <option>+1</option>
+                <option value="+212">+212</option>
+                <option value="+254">+254</option>
+                <option value="+255">+255</option>
+                <option value="+256">+256</option>
+                <option value="+1">+1</option>
               </select>
             </div>
             <input
@@ -788,12 +778,13 @@ function StepMonitoringSetup({ formData, onChange }: StepProps) {
           <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="language">
             Language Preference
           </label>
-          <select
+            <select
             className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm py-2.5 px-3"
             id="language"
             value={formData.languagePreference}
             onChange={(e) => onChange("languagePreference", e.target.value)}
           >
+            <option value="darija">Darija (Moroccan Arabic)</option>
             <option value="en">English</option>
             <option value="sw">Swahili</option>
             <option value="fr">French</option>

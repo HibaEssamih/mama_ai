@@ -1,115 +1,83 @@
-"use client";
+import { notFound } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import { normalizePatient } from "@/lib/patients";
+import { PatientDetailClient } from "./PatientDetailClient";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
-import {
-  PatientActionBar,
-  PatientHeader,
-  VitalsCard,
-  ClinicalHistory,
-  VoiceTimeline,
-  RiskTrendChart,
-  EmergencyContactCard,
-  AIRecommendation
-} from "@/components/patient";
-import {
-  mockPatientProfile,
-  mockVitals,
-  mockClinicalHistory,
-  mockVoiceMessages,
-  mockEmergencyContact,
-  mockRiskTrend
-} from "@/lib/mockPatientData";
-
-interface PatientProfilePageProps {
-  params: Promise<{
-    id: string;
-  }>;
+export interface ConversationRow {
+  id: string;
+  patient_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export default function PatientProfilePage({ params }: PatientProfilePageProps) {
-  const router = useRouter();
-  const { id: patientId } = use(params);
+export interface MessageRow {
+  id: string;
+  conversation_id: string;
+  role: "user" | "assistant";
+  content: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
 
-  // TODO: Fetch real patient data based on patientId
-  // For now, using mock data
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
-  // Action Handlers
-  const handleMarkResolved = () => {
-    console.log("Marking patient as resolved:", patientId);
-    // TODO: Implement mark resolved functionality
-    alert("Patient case marked as resolved");
-  };
+export default async function PatientDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  const supabase = await createClient();
 
-  const handleSchedule = () => {
-    router.push(`/dashboard/patients/${patientId}/schedule`);
-  };
+  const { data: patientRow, error: patientError } = await supabase
+    .from("patients")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-  const handleEscalate = () => {
-    if (confirm(
-      `Escalate ${mockPatientProfile.name} to emergency care?\n\nThis will alert the on-call physician immediately.`
-    )) {
-      console.log("Escalating to emergency:", patientId);
-      // TODO: Implement escalation
-      alert("Emergency escalation triggered. On-call physician notified.");
+  if (patientError || !patientRow) {
+    notFound();
+  }
+
+  const patient = normalizePatient(patientRow as Record<string, unknown>);
+
+  let conversation: ConversationRow | null = null;
+  const { data: convList } = await supabase
+    .from("conversations")
+    .select("id, patient_id, created_at, updated_at")
+    .eq("patient_id", id)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (convList?.[0]) {
+    conversation = convList[0] as ConversationRow;
+  } else {
+    const { data: newConv, error: createErr } = await supabase
+      .from("conversations")
+      .insert({ patient_id: id })
+      .select("id, patient_id, created_at, updated_at")
+      .single();
+    if (!createErr && newConv) {
+      conversation = newConv as ConversationRow;
     }
-  };
+  }
+
+  let messages: MessageRow[] = [];
+  if (conversation) {
+    const { data: msgList } = await supabase
+      .from("messages")
+      .select("id, conversation_id, role, content, metadata, created_at")
+      .eq("conversation_id", conversation.id)
+      .order("created_at", { ascending: false });
+    messages = (msgList ?? []).map((m) => m as MessageRow);
+  }
+
+  const conversationId = conversation?.id ?? null;
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
-      {/* Action Bar - Fixed at top */}
-      <PatientActionBar
-        patientName={mockPatientProfile.name}
-        patientId={patientId}
-        onMarkResolved={handleMarkResolved}
-        onSchedule={handleSchedule}
-        onEscalate={handleEscalate}
-      />
-
-      {/* Main Content - Single scrollable area */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-          {/* Patient Overview */}
-          <PatientHeader patient={mockPatientProfile} />
-
-          {/* Three-Column Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 pb-8">
-            
-            {/* Left Sidebar: Vitals & Clinical History */}
-            <aside 
-              className="lg:col-span-3 flex flex-col gap-4 sm:gap-6"
-              aria-label="Patient vitals and history"
-            >
-              <VitalsCard vitals={mockVitals} />
-              <ClinicalHistory history={mockClinicalHistory} />
-            </aside>
-
-            {/* Center: Voice Timeline (Main Feature) */}
-            <section 
-              className="lg:col-span-6"
-              aria-label="Voice symptom timeline"
-            >
-              <VoiceTimeline
-                messages={mockVoiceMessages}
-                patientAvatar={mockPatientProfile.avatarUrl}
-                patientName={mockPatientProfile.name}
-              />
-            </section>
-
-            {/* Right Sidebar: Analytics & Contacts */}
-            <aside 
-              className="lg:col-span-3 flex flex-col gap-4 sm:gap-6"
-              aria-label="Patient analytics and contacts"
-            >
-              <RiskTrendChart data={mockRiskTrend} />
-              <EmergencyContactCard contact={mockEmergencyContact} />
-              <AIRecommendation 
-                recommendation="BP spike correlates with evening updates. Suggest monitoring evening diet and stress levels."
-              />
-            </aside>
-          </div>
-        </div>
-      </main>
-    </div>
+    <PatientDetailClient
+      patient={patient}
+      patientId={id}
+      conversationId={conversationId}
+      initialMessages={messages}
+    />
   );
 }

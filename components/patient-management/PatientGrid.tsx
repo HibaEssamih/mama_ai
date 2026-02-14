@@ -1,10 +1,10 @@
 "use client";
 
 import { PatientCardImproved } from "@/components/patient/PatientCardImproved";
-import type { PatientManagementCard } from "@/types";
+import type { Patient } from "@/types";
 
 interface PatientGridProps {
-  patients: PatientManagementCard[];
+  patients: Patient[];
   expandedCard: string | null;
   onExpand: (id: string) => void;
   onPatientClick: (id: string) => void;

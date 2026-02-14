@@ -205,7 +205,7 @@ export default function PatientList({
                     checked={selectedIds.includes(patient.id)}
                     onChange={(e) => handleSelect(patient.id, e.target.checked)}
                     className="rounded border-slate-300 text-sky-500 focus:ring-sky-500 h-4 w-4 cursor-pointer shadow-sm"
-                    aria-label={`Select ${patient.name}`}
+                    aria-label={`Select ${patient.full_name ?? patient.name}`}
                   />
                 </label>
               </div>

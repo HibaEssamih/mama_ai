@@ -4,14 +4,32 @@
 
 export interface Patient {
   id: string;
-  name: string;
-  age: number;
-  gestationalWeek: number;
-  phone: string;
-  location: string;
-  riskLevel: "low" | "medium" | "high" | "critical";
-  lastCheckIn?: Date;
-  avatarUrl?: string;
+  phone_number: string;
+  full_name: string | null;
+  name: string; // Fallback field
+  due_date: string | null;
+  gestational_week: number;
+  risk_level: "low" | "medium" | "high" | "critical";
+  language: string;
+  medical_history: { notes?: string } | null;
+  created_at: string;
+
+  // New Clinical Fields
+  date_of_birth: string | null;
+  national_id: string | null;
+  location_address: string | null;
+  trimester: 1 | 2 | 3 | null;
+  blood_type: string | null;
+  previous_pregnancies: number;
+  current_medications: string | null;
+  allergies: string | null;
+
+  // Emergency/Support
+  emergency_contact_name: string | null;
+  emergency_contact_relation: string | null;
+  emergency_contact_phone: string | null;
+  preferred_checkup_time: string | null;
+  has_smartphone: boolean;
 }
 
 export interface VitalSign {
@@ -56,17 +74,12 @@ export interface CTAFormData {
 // Dashboard Types
 export type PatientRiskLevel = "critical" | "warning" | "stable" | "normal";
 
-export interface DashboardPatient {
-  id: string;
-  name: string;
-  patientId: string;
-  gestationalWeek: number;
+export interface DashboardPatient extends Patient {
   avatarUrl: string;
-  riskLevel: PatientRiskLevel;
-  lastUpdate: string; // e.g., "2m ago"
+  lastUpdate: string; // Calculated field (e.g. "2h ago")
   alert: {
-    type: "High Risk" | "Moderate" | "Monitor";
-    category: string; // e.g., "BP Spike", "Movement Anomaly"
+    type: string;
+    category: string;
     message: string;
   };
   metrics: {
@@ -74,7 +87,7 @@ export interface DashboardPatient {
     value: string | number;
     trend: "up" | "down" | "stable";
   }[];
-  trendData?: number[]; // For chart
+  trendData?: number[];
 }
 
 export interface DashboardStats {
