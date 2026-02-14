@@ -1,6 +1,6 @@
 /**
  * Dashboard Components Barrel Export
- * 
+ *
  * Centralized export for all dashboard components
  */
 
@@ -16,6 +16,10 @@ export { default as SectionHeader } from "./SectionHeader";
 // Patient Components
 export { default as PatientCard } from "./PatientCard";
 export { default as PatientList } from "./PatientList";
+export { default as PatientListSkeleton } from "./PatientListSkeleton";
 
 // Section Components
 export { default as TriageSection } from "./TriageSection";
+
+// Utility Components
+export { default as CommandPalette } from "./CommandPalette";

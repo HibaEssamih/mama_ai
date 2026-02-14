@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { DashboardPatient } from "@/types";
 import SectionHeader from "./SectionHeader";
 import PatientList from "./PatientList";
+import PatientListSkeleton from "./PatientListSkeleton";
 
 interface TriageSectionProps {
   id: string;
@@ -19,21 +20,23 @@ interface TriageSectionProps {
   onSort?: (sortBy: string) => void;
 }
 
-export default function TriageSection({ 
-  id, 
-  title, 
-  icon, 
-  variant, 
-  patients, 
+export default function TriageSection({
+  id,
+  title,
+  icon,
+  variant,
+  patients,
   className = "",
   isLoading = false,
   isCollapsible = false,
   defaultCollapsed = false,
   showCount = true,
-  onSort
+  onSort,
 }: TriageSectionProps) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [sortBy, setSortBy] = useState<"priority" | "time" | "name">("priority");
+  const [sortBy, setSortBy] = useState<"priority" | "time" | "name">(
+    "priority",
+  );
 
   const handleSort = (newSortBy: typeof sortBy) => {
     setSortBy(newSortBy);
@@ -43,33 +46,32 @@ export default function TriageSection({
   };
 
   const patientCount = patients.length;
-  const displayTitle = showCount && patientCount > 0 
-    ? `${title} (${patientCount})` 
-    : title;
+  const displayTitle =
+    showCount && patientCount > 0 ? `${title} (${patientCount})` : title;
 
   return (
-    <section 
-      aria-labelledby={id} 
-      className={className}
-    >
+    <section aria-labelledby={id} className={className}>
       {/* Section Header with Actions */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3 flex-1">
-          <SectionHeader 
+          <SectionHeader
             id={id}
             title={displayTitle}
             icon={icon}
             variant={variant}
           />
-          
+
           {/* Loading Indicator */}
           {isLoading && (
-            <div 
+            <div
               className="flex items-center gap-2 text-sm text-slate-500"
               role="status"
               aria-live="polite"
             >
-              <span className="material-symbols-outlined text-[18px] animate-spin" aria-hidden="true">
+              <span
+                className="material-symbols-outlined text-[18px] animate-spin"
+                aria-hidden="true"
+              >
                 progress_activity
               </span>
               <span className="sr-only">Loading patients...</span>
@@ -96,7 +98,7 @@ export default function TriageSection({
                 <option value="time">Sort by Time</option>
                 <option value="name">Sort by Name</option>
               </select>
-              <span 
+              <span
                 className="absolute right-1 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-slate-400 pointer-events-none"
                 aria-hidden="true"
               >
@@ -115,8 +117,8 @@ export default function TriageSection({
               aria-controls={`${id}-content`}
               aria-label={isCollapsed ? `Expand ${title}` : `Collapse ${title}`}
             >
-              <span 
-                className={`material-symbols-outlined text-[20px] transition-transform ${isCollapsed ? '' : 'rotate-180'}`}
+              <span
+                className={`material-symbols-outlined text-[20px] transition-transform ${isCollapsed ? "" : "rotate-180"}`}
                 aria-hidden="true"
               >
                 expand_more
@@ -129,25 +131,25 @@ export default function TriageSection({
       {/* Patient List */}
       {(!isCollapsible || !isCollapsed) && (
         <div id={`${id}-content`} aria-hidden={false}>
-          <PatientList 
-            patients={patients}
-            emptyMessage={
-              isLoading 
-                ? "Loading patients..." 
-                : `No ${variant} patients at this time`
-            }
-          />
+          {isLoading ? (
+            <PatientListSkeleton count={3} />
+          ) : (
+            <PatientList
+              patients={patients}
+              emptyMessage={`No ${variant} patients at this time`}
+            />
+          )}
         </div>
       )}
 
       {/* Collapsed State Summary */}
       {isCollapsible && isCollapsed && patientCount > 0 && (
-        <div 
+        <div
           className="text-sm text-slate-500 py-3 px-4 bg-slate-50 rounded-md border border-slate-200"
           id={`${id}-content-summary`}
           aria-hidden={false}
         >
-          {patientCount} patient{patientCount !== 1 ? 's' : ''} hidden
+          {patientCount} patient{patientCount !== 1 ? "s" : ""} hidden
         </div>
       )}
     </section>

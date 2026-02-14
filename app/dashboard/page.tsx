@@ -6,8 +6,6 @@ import { mockCriticalPatients, mockWarningPatients } from "@/lib/mockData";
 
 export default function DashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [criticalSortBy, setCriticalSortBy] = useState("priority");
-  const [warningSortBy, setWarningSortBy] = useState("priority");
 
   const handleFilter = () => {
     console.log("Filter clicked");
@@ -18,7 +16,7 @@ export default function DashboardPage() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     console.log("Data refreshed");
     setIsRefreshing(false);
   };
@@ -30,35 +28,34 @@ export default function DashboardPage() {
   };
 
   const handleCriticalSort = (sortBy: string) => {
-    setCriticalSortBy(sortBy);
     console.log("Sorting critical patients by:", sortBy);
     // TODO: Implement actual sorting logic
   };
 
   const handleWarningSort = (sortBy: string) => {
-    setWarningSortBy(sortBy);
     console.log("Sorting warning patients by:", sortBy);
     // TODO: Implement actual sorting logic
   };
 
-  const totalPatients = mockCriticalPatients.length + mockWarningPatients.length;
-  const currentTime = new Date().toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
+  const totalPatients =
+    mockCriticalPatients.length + mockWarningPatients.length;
+  const currentTime = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
+    <div className="p-6">
       <PageHeader
         title="Priority Triage Board"
         description="Real-time patient monitoring sorted by clinical urgency."
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Triage Board" }
+          { label: "Triage Board" },
         ]}
         metadata={[
           { label: "Total Patients", value: totalPatients, icon: "groups" },
-          { label: "Last Updated", value: currentTime, icon: "schedule" }
+          { label: "Last Updated", value: currentTime, icon: "schedule" },
         ]}
         actions={[
           {
@@ -66,14 +63,14 @@ export default function DashboardPage() {
             icon: "filter_list",
             onClick: handleFilter,
             variant: "secondary",
-            ariaLabel: "Filter patients by criteria"
+            ariaLabel: "Filter patients by criteria",
           },
           {
             label: "Export",
             icon: "download",
             onClick: handleExport,
             variant: "secondary",
-            ariaLabel: "Export patient data"
+            ariaLabel: "Export patient data",
           },
           {
             label: "Refresh",
@@ -81,8 +78,8 @@ export default function DashboardPage() {
             onClick: handleRefresh,
             variant: "primary",
             loading: isRefreshing,
-            ariaLabel: "Refresh patient data"
-          }
+            ariaLabel: "Refresh patient data",
+          },
         ]}
       />
 
@@ -105,12 +102,36 @@ export default function DashboardPage() {
         icon="warning"
         variant="warning"
         patients={mockWarningPatients}
-        className="pb-12"
+        className="mb-8"
         isLoading={isRefreshing}
         isCollapsible={true}
         showCount={true}
         onSort={handleWarningSort}
       />
-    </main>
+
+      {/* Keyboard Shortcuts Hint */}
+      <div className="mt-8 p-4 bg-slate-100 border border-slate-200 rounded-lg">
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <span className="material-symbols-outlined text-[16px]">
+            keyboard
+          </span>
+          <span className="font-semibold">Keyboard Shortcuts:</span>
+          <kbd className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-mono">
+            ⌘ K
+          </kbd>
+          <span>Command Palette</span>
+          <span className="mx-2">•</span>
+          <kbd className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-mono">
+            N
+          </kbd>
+          <span>New Patient</span>
+          <span className="mx-2">•</span>
+          <kbd className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-mono">
+            /
+          </kbd>
+          <span>Search</span>
+        </div>
+      </div>
+    </div>
   );
 }

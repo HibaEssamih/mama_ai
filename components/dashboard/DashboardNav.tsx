@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface NavItem {
   href: string;
@@ -15,7 +20,13 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/analytics", icon: "bar_chart", label: "Analytics" },
 ];
 
-export default function DashboardNav() {
+interface DashboardNavProps {
+  isCollapsed?: boolean;
+}
+
+export default function DashboardNav({
+  isCollapsed = false,
+}: DashboardNavProps) {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -25,8 +36,67 @@ export default function DashboardNav() {
     return pathname?.startsWith(href);
   };
 
+  if (isCollapsed) {
+    return (
+      <nav
+        className="flex-1 overflow-y-auto py-4 px-2 space-y-1"
+        aria-label="Main dashboard navigation"
+      >
+        {NAV_ITEMS.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Tooltip key={item.href}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={item.href}
+                  className={`flex items-center justify-center w-12 h-12 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 ${
+                    active
+                      ? "bg-slate-100 text-sky-700"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                  aria-current={active ? "page" : undefined}
+                  aria-label={item.label}
+                >
+                  <span
+                    className="material-symbols-outlined text-[20px]"
+                    aria-hidden="true"
+                  >
+                    {item.icon}
+                  </span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{item.label}</p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+
+        {/* AI Filters - Collapsed */}
+        <div className="mt-8 pt-4 border-t border-slate-200">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="flex items-center justify-center w-12 h-12 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500"
+                aria-label="AI Filters"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  psychology
+                </span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>AI Filters Active</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </nav>
+    );
+  }
+
   return (
-    <nav 
+    <nav
       className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5"
       aria-label="Main dashboard navigation"
     >
@@ -43,7 +113,10 @@ export default function DashboardNav() {
             }`}
             aria-current={active ? "page" : undefined}
           >
-            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+            <span
+              className="material-symbols-outlined text-[20px]"
+              aria-hidden="true"
+            >
               {item.icon}
             </span>
             <span>{item.label}</span>
@@ -67,8 +140,8 @@ function AIFilters() {
     <fieldset className="space-y-2">
       <legend className="sr-only">AI detection filters</legend>
       <label className="flex items-center gap-2 cursor-pointer group">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           defaultChecked
           name="voiceStress"
           className="rounded border-slate-300 text-sky-500 focus:ring-sky-500 h-4 w-4 cursor-pointer transition-colors"
@@ -79,8 +152,8 @@ function AIFilters() {
         </span>
       </label>
       <label className="flex items-center gap-2 cursor-pointer group">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           defaultChecked
           name="bpAbnormalities"
           className="rounded border-slate-300 text-sky-500 focus:ring-sky-500 h-4 w-4 cursor-pointer transition-colors"
@@ -91,8 +164,8 @@ function AIFilters() {
         </span>
       </label>
       <label className="flex items-center gap-2 cursor-pointer group">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           defaultChecked
           name="movementPatterns"
           className="rounded border-slate-300 text-sky-500 focus:ring-sky-500 h-4 w-4 cursor-pointer transition-colors"
