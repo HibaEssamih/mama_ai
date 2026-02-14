@@ -2,13 +2,16 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { mockPatientManagementData, patientManagementStats } from "@/lib/mockPatientManagement";
-import { 
-  StatsBar, 
-  SearchFiltersBar, 
-  PatientGrid, 
-  PaginationControls, 
-  EmptyState 
+import {
+  mockPatientManagementData,
+  patientManagementStats,
+} from "@/lib/mockPatientManagement";
+import {
+  StatsBar,
+  SearchFiltersBar,
+  PatientGrid,
+  PaginationControls,
+  EmptyState,
 } from "@/components/patient-management";
 import type { PatientManagementCard } from "@/types";
 
@@ -26,7 +29,7 @@ const filterPatients = (
   patients: PatientManagementCard[],
   query: string,
   showHighRiskOnly: boolean,
-  showOverdueOnly: boolean
+  showOverdueOnly: boolean,
 ): PatientManagementCard[] => {
   return patients.filter((patient) => {
     const matchesSearch =
@@ -53,7 +56,7 @@ const filterPatients = (
 
 export default function PatientsPage() {
   const router = useRouter();
-  
+
   // State
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,8 +66,14 @@ export default function PatientsPage() {
 
   // Memoized data
   const filteredPatients = useMemo(
-    () => filterPatients(mockPatientManagementData, searchQuery, showHighRiskOnly, showOverdueOnly),
-    [searchQuery, showHighRiskOnly, showOverdueOnly]
+    () =>
+      filterPatients(
+        mockPatientManagementData,
+        searchQuery,
+        showHighRiskOnly,
+        showOverdueOnly,
+      ),
+    [searchQuery, showHighRiskOnly, showOverdueOnly],
   );
 
   const paginatedPatients = useMemo(() => {
@@ -75,17 +84,19 @@ export default function PatientsPage() {
   const totalPages = Math.ceil(filteredPatients.length / ITEMS_PER_PAGE);
 
   const highRiskCount = mockPatientManagementData.filter(
-    (p) => p.status === "high-risk" || p.status === "due-soon"
+    (p) => p.status === "high-risk" || p.status === "due-soon",
   ).length;
 
-  const overdueCount = mockPatientManagementData.filter((p) => p.isOverdue).length;
+  const overdueCount = mockPatientManagementData.filter(
+    (p) => p.isOverdue,
+  ).length;
 
   // Event handlers
   const handlePatientClick = useCallback(
     (patientId: string) => {
       router.push(`/dashboard/patients/${patientId}`);
     },
-    [router]
+    [router],
   );
 
   const handleNewPatient = useCallback(() => {
@@ -134,10 +145,11 @@ export default function PatientsPage() {
     setExpandedCard((prev) => (prev === id ? null : id));
   }, []);
 
-  const showAddCard = !searchQuery && !showHighRiskOnly && !showOverdueOnly && currentPage === 1;
+  const showAddCard =
+    !searchQuery && !showHighRiskOnly && !showOverdueOnly && currentPage === 1;
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 to-slate-100/50 overflow-hidden">
       {/* Stats Bar */}
       <StatsBar stats={patientManagementStats} />
 
@@ -157,14 +169,25 @@ export default function PatientsPage() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-10">
-        <div className="max-w-[1600px] mx-auto w-full">
+      <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-12">
+        <div className="max-w-400 mx-auto w-full">
           {/* Search Results Info */}
           {(searchQuery || showHighRiskOnly || showOverdueOnly) && (
-            <div className="mb-4 text-sm text-slate-600">
-              Found <strong className="text-slate-900">{filteredPatients.length}</strong> patient
-              {filteredPatients.length !== 1 ? 's' : ''}
-              {searchQuery && ` matching "${searchQuery}"`}
+            <div className="mb-5 px-1">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm">
+                <span className="material-symbols-outlined text-teal-500 text-[18px]">
+                  search
+                </span>
+                <span className="text-sm text-slate-600">
+                  Found{" "}
+                  <strong className="text-slate-900 font-bold">
+                    {filteredPatients.length}
+                  </strong>{" "}
+                  patient
+                  {filteredPatients.length !== 1 ? "s" : ""}
+                  {searchQuery && ` matching "${searchQuery}"`}
+                </span>
+              </div>
             </div>
           )}
 
@@ -199,11 +222,11 @@ export default function PatientsPage() {
       {/* FAB for mobile */}
       <button
         onClick={handleNewPatient}
-        className="fixed bottom-8 right-8 lg:hidden w-14 h-14 bg-teal-500 text-white rounded-full shadow-lg shadow-teal-500/30 flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+        className="fixed bottom-8 right-8 lg:hidden w-16 h-16 bg-linear-to-r from-teal-500 to-teal-600 text-white rounded-2xl shadow-2xl shadow-teal-500/40 flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-all cursor-pointer"
         type="button"
         aria-label="Add new patient"
       >
-        <span className="material-symbols-outlined text-2xl">add</span>
+        <span className="material-symbols-outlined text-3xl">add</span>
       </button>
     </div>
   );
