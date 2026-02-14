@@ -45,7 +45,7 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-7xl mx-auto">
       <PageHeader
         title="Priority Triage Board"
         description="Real-time patient monitoring sorted by clinical urgency."
@@ -62,21 +62,21 @@ export default function DashboardPage() {
             label: "Filter",
             icon: "filter_list",
             onClick: handleFilter,
-            variant: "secondary",
+            variant: "outline",
             ariaLabel: "Filter patients by criteria",
           },
           {
             label: "Export",
             icon: "download",
             onClick: handleExport,
-            variant: "secondary",
+            variant: "outline",
             ariaLabel: "Export patient data",
           },
           {
             label: "Refresh",
             icon: "refresh",
             onClick: handleRefresh,
-            variant: "primary",
+            variant: "default",
             loading: isRefreshing,
             ariaLabel: "Refresh patient data",
           },

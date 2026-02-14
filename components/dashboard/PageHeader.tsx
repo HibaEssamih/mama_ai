@@ -1,8 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
-interface Breadcrumb {
+interface BreadcrumbItem {
   label: string;
   href?: string;
 }
@@ -11,7 +21,7 @@ interface Action {
   label: string;
   icon: string;
   onClick: () => void;
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "default" | "secondary" | "destructive" | "outline" | "ghost";
   loading?: boolean;
   ariaLabel?: string;
 }
@@ -19,7 +29,7 @@ interface Action {
 interface PageHeaderProps {
   title: string;
   description?: string;
-  breadcrumbs?: Breadcrumb[];
+  breadcrumbs?: BreadcrumbItem[];
   actions?: Action[];
   metadata?: {
     label: string;
@@ -29,115 +39,102 @@ interface PageHeaderProps {
   variant?: "default" | "compact";
 }
 
-export default function PageHeader({ 
-  title, 
+export default function PageHeader({
+  title,
   description,
   breadcrumbs,
   actions,
   metadata,
-  variant = "default"
+  variant = "default",
 }: PageHeaderProps) {
   const isCompact = variant === "compact";
 
-  const getActionStyles = (actionVariant: Action["variant"] = "secondary") => {
-    const base = "px-3 py-1.5 text-sm font-medium rounded transition-colors flex items-center gap-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
-    
-    switch (actionVariant) {
-      case "primary":
-        return `${base} text-white bg-sky-500 hover:bg-sky-600 active:bg-sky-700 focus:ring-sky-500`;
-      case "danger":
-        return `${base} text-white bg-red-500 hover:bg-red-600 active:bg-red-700 focus:ring-red-500`;
-      case "secondary":
-      default:
-        return `${base} text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 focus:ring-sky-500`;
-    }
-  };
-
   return (
-    <header className={`${isCompact ? 'mb-4' : 'mb-6'}`}>
+    <header className={`${isCompact ? "mb-4" : "mb-6"}`}>
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="mb-2" aria-label="Breadcrumb">
-          <ol className="flex items-center gap-2 text-sm">
+        <Breadcrumb className="mb-3">
+          <BreadcrumbList>
             {breadcrumbs.map((crumb, index) => (
-              <li key={index} className="flex items-center gap-2">
-                {index > 0 && (
-                  <span className="text-slate-400" aria-hidden="true">/</span>
-                )}
-                {crumb.href ? (
-                  <Link
-                    href={crumb.href}
-                    className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 rounded px-1 cursor-pointer"
-                  >
-                    {crumb.label}
-                  </Link>
-                ) : (
-                  <span className="text-slate-900 font-medium" aria-current="page">
-                    {crumb.label}
-                  </span>
-                )}
-              </li>
+              <div key={index} className="contents">
+                {index > 0 && <BreadcrumbSeparator />}
+                <BreadcrumbItem>
+                  {crumb.href ? (
+                    <BreadcrumbLink asChild>
+                      <Link href={crumb.href}>{crumb.label}</Link>
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+              </div>
             ))}
-          </ol>
-        </nav>
+          </BreadcrumbList>
+        </Breadcrumb>
       )}
 
       {/* Main Header Content */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div className="flex-1">
-          <h1 className={`font-bold text-slate-900 tracking-tight ${isCompact ? 'text-xl' : 'text-2xl'}`}>
+          <h1
+            className={`font-bold tracking-tight ${isCompact ? "text-2xl" : "text-3xl"}`}
+          >
             {title}
           </h1>
           {description && (
-            <p className="text-slate-500 mt-1 text-sm">
+            <p className="text-muted-foreground mt-2 text-base">
               {description}
             </p>
           )}
-          
+
           {/* Metadata */}
           {metadata && metadata.length > 0 && (
-            <div className="flex flex-wrap items-center gap-4 mt-2">
+            <div className="flex flex-wrap items-center gap-4 mt-3">
               {metadata.map((item, index) => (
-                <div key={index} className="flex items-center gap-1.5 text-sm">
+                <div
+                  key={index}
+                  className="flex items-center gap-2 text-sm bg-muted/50 px-3 py-1.5 rounded-md"
+                >
                   {item.icon && (
-                    <span className="material-symbols-outlined text-[16px] text-slate-400" aria-hidden="true">
+                    <span
+                      className="material-symbols-outlined text-[16px] text-muted-foreground"
+                      aria-hidden="true"
+                    >
                       {item.icon}
                     </span>
                   )}
-                  <span className="text-slate-500">{item.label}:</span>
-                  <span className="font-semibold text-slate-900">{item.value}</span>
+                  <span className="text-muted-foreground">{item.label}:</span>
+                  <span className="font-semibold">{item.value}</span>
                 </div>
               ))}
             </div>
           )}
         </div>
-        
+
         {/* Actions */}
         {actions && actions.length > 0 && (
           <div className="flex gap-2" role="toolbar" aria-label="Page actions">
             {actions.map((action, index) => (
-              <button 
+              <Button
                 key={index}
-                className={getActionStyles(action.variant)}
-                type="button"
+                variant={action.variant || "default"}
                 onClick={action.onClick}
                 disabled={action.loading}
                 aria-label={action.ariaLabel || action.label}
+                className="gap-2"
               >
                 {action.loading ? (
-                  <span 
-                    className="material-symbols-outlined text-[18px] animate-spin" 
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <span
+                    className="material-symbols-outlined text-[18px]"
                     aria-hidden="true"
                   >
-                    progress_activity
-                  </span>
-                ) : (
-                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                     {action.icon}
                   </span>
                 )}
                 <span className="hidden sm:inline">{action.label}</span>
-              </button>
+              </Button>
             ))}
           </div>
         )}
