@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { generateMamaResponse } from "@/lib/generateMamaResponse";
+import { generateClinicalResume } from "@/lib/generateClinicalResume";
 import { analyzeSymptomRisk } from "@/lib/symptoms";
 import { transcribeAudio } from "@/lib/transcribe";
 import { generateSpeech } from "@/lib/speak";
@@ -107,15 +108,15 @@ async function processMessageInBackground(body: any) {
       })
       .select().single();
 
-    // Update health resume and risk status
+    // Update risk and last_resume; clinical_resume is updated below after we have full context
     const stateResume = `Check-in: ${new Date().toLocaleDateString()} - AI detected: ${risk.symptom || 'Normal update'}. Urgency: ${risk.urgency}`;
-    
-    await supabase.from("patients").update({ 
+    const existingMedicalHistory = typeof currentPatient.medical_history === "object" && currentPatient.medical_history
+      ? { ...currentPatient.medical_history }
+      : {};
+
+    await supabase.from("patients").update({
       risk_level: risk.urgency,
-      medical_history: { 
-        ...(typeof currentPatient.medical_history === 'object' ? currentPatient.medical_history : {}),
-        last_resume: stateResume
-      }
+      medical_history: { ...existingMedicalHistory, last_resume: stateResume },
     }).eq("id", currentPatient.id);
 
     // Trigger alert record for high/critical
@@ -126,6 +127,28 @@ async function processMessageInBackground(body: any) {
         urgency: risk.urgency,
         symptom_name: risk.symptom
       });
+    }
+
+    // --- 3b. AI clinical resume for doctors (persisted in medical_history.clinical_resume) ---
+    try {
+      const { data: resumeHistory } = await supabase
+        .from("messages")
+        .select("role, content")
+        .eq("conversation_id", conv!.id)
+        .order("created_at", { ascending: true })
+        .limit(20);
+      const transcript = resumeHistory
+        ? resumeHistory.map((m) => `${m.role}: ${m.content}`).join("\n")
+        : "";
+      const clinicalResume = await generateClinicalResume({
+        gestational_week: currentPatient.gestational_week,
+        risk_level: risk.urgency,
+        conversationTranscript: transcript,
+      });
+      const medicalWithResume = { ...existingMedicalHistory, clinical_resume: clinicalResume };
+      await supabase.from("patients").update({ medical_history: medicalWithResume }).eq("id", currentPatient.id);
+    } catch (err) {
+      console.error("[Webhook] Clinical resume generation failed:", err);
     }
 
     // --- 4. FETCH CONTEXT & GENERATE AI RESPONSE ---

@@ -11,7 +11,7 @@ export interface Patient {
   gestational_week: number;
   risk_level: "low" | "medium" | "high" | "critical";
   language: string;
-  medical_history: { notes?: string } | null;
+  medical_history: { notes?: string; clinical_resume?: string; last_resume?: string } | null;
   created_at: string;
 
   // New Clinical Fields
