@@ -225,8 +225,38 @@ export function PatientDetailClient({
           </section>
         </aside>
 
-        {/* Center: Daily summary + Chat */}
+        {/* Center: Clinical Intelligence + Daily summary + Chat */}
         <main className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
+          {/* Clinical Intelligence — AI-generated resume for doctors */}
+          <section className="bg-white border border-slate-200 rounded-xl border-l-4 border-l-teal-500 shadow-sm overflow-hidden shrink-0">
+            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+              <h2 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                <span className="material-symbols-outlined text-teal-600 text-lg">psychology</span>
+                Clinical Intelligence
+              </h2>
+              <span
+                className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                  patient.risk_level === "critical"
+                    ? "bg-red-100 text-red-800"
+                    : patient.risk_level === "high"
+                      ? "bg-orange-100 text-orange-800"
+                      : patient.risk_level === "medium"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-emerald-100 text-emerald-800"
+                }`}
+              >
+                {patient.risk_level}
+              </span>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-slate-700 italic">
+                {patient.medical_history?.clinical_resume?.trim()
+                  ? patient.medical_history.clinical_resume
+                  : "No clinical summary yet. Summary updates as the patient messages."}
+              </p>
+            </div>
+          </section>
+
           <section className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3 shrink-0">
             <h2 className="text-xs font-bold text-teal-800 uppercase tracking-wider mb-2 flex items-center gap-2">
               <span className="material-symbols-outlined text-teal-600">today</span>

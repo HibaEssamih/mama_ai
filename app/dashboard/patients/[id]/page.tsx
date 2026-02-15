@@ -66,7 +66,7 @@ export default async function PatientDetailPage({ params }: PageProps) {
       .from("messages")
       .select("id, conversation_id, role, content, metadata, created_at")
       .eq("conversation_id", conversation.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: true });
     messages = (msgList ?? []).map((m) => m as MessageRow);
   }
 
