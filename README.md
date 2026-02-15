@@ -1,32 +1,147 @@
-# ✅ MamaGuard - Project Complete!
+<div align="center">
+  <h1>🤰 MamaGuard AI</h1>
+  <p><strong>AI-Powered Maternal Health Monitoring System</strong></p>
+  
+  <p>
+    <a href="#features">Features</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#getting-started">Getting Started</a> •
+    <a href="#documentation">Documentation</a> •
+    <a href="#deployment">Deployment</a>
+  </p>
 
-## 🎯 Summary
-
-Successfully converted the MamaGuard landing page and doctor dashboard from vanilla HTML to a production-ready Next.js application with best practices for:
-- ✅ Accessibility
-- ✅ SEO
-- ✅ Performance
-- ✅ Code Organization
-- ✅ TypeScript Type Safety
-- ✅ Responsive Design
+  ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+  ![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+  ![React](https://img.shields.io/badge/React-19.2.3-61dafb)
+</div>
 
 ---
 
-## 🚀 Running the Project
+## 📖 Overview
 
-### Development Server
-```bash
-npm run dev
-```
-**URL**: http://localhost:3001
+**MamaGuard AI** is an innovative maternal health monitoring platform that leverages AI and voice technology to provide 24/7 support for expectant mothers in Morocco. The system combines WhatsApp-based conversational AI with a comprehensive clinical dashboard for healthcare providers.
 
-### Build for Production
-```bash
-npm run build
-npm start
-```
+### 🎯 Mission
 
-**Note**: Build may fail on machines with limited memory. Use the dev server for testing, or deploy to Vercel/Netlify where builds succeed.
+Reduce maternal mortality rates by providing accessible, AI-powered health monitoring and real-time risk assessment through familiar communication channels.
+
+### 🌟 Key Highlights
+
+- 🗣️ **Voice-First Interface** - Natural language interactions in Darija (Moroccan Arabic)
+- 🤖 **AI-Powered Triage** - Intelligent risk assessment and symptom analysis
+- 📱 **WhatsApp Integration** - Accessible through the world's most popular messaging platform
+- 👨‍⚕️ **Clinical Dashboard** - Real-time patient monitoring for healthcare providers
+- 🔔 **Smart Alerts** - Automated notifications for critical situations
+- 📊 **Analytics & Insights** - Comprehensive health tracking and trend analysis
+
+---
+
+## ✨ Features
+
+### For Patients
+
+- **24/7 Voice Support** - Speak naturally in Darija or French
+- **Symptom Tracking** - Report symptoms via voice or text messages
+- **Health Education** - Receive personalized pregnancy guidance
+- **Appointment Reminders** - Automated scheduling and notifications
+- **Emergency Protocols** - Immediate escalation for critical symptoms
+
+### For Healthcare Providers
+
+- **Real-Time Dashboard** - Monitor all patients at a glance
+- **Risk Stratification** - Automatic categorization (Critical/Warning/Stable)
+- **AI Recommendations** - Clinical insights and suggested actions
+- **Patient Profiles** - Comprehensive medical history and trends
+- **Voice Timeline** - Review all patient interactions
+- **Quick Actions** - One-click call, dispatch, or schedule
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **[Next.js 16](https://nextjs.org/)** - React framework with App Router
+- **[React 19](https://react.dev/)** - UI library
+- **[TypeScript](https://www.typescriptlang.org/)** - Type safety
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first styling
+- **[Shadcn/ui](https://ui.shadcn.com/)** - Accessible component library
+- **[Recharts](https://recharts.org/)** - Data visualization
+
+### Backend & Infrastructure
+- **[Supabase](https://supabase.com/)** - PostgreSQL database, authentication, and real-time subscriptions
+- **[OpenAI](https://openai.com/)** - GPT-4 for conversational AI
+- **[Minimax API](https://www.minimaxi.com/)** - Voice synthesis and transcription
+- **[WhatsApp Business API](https://business.whatsapp.com/)** - Messaging integration
+
+### Development Tools
+- **ESLint** - Code linting
+- **React Hook Form** - Form management
+- **Zod** - Schema validation
+- **Lucide React** - Icon library
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** 20.x or higher
+- **npm** or **yarn** package manager
+- **Supabase** account
+- **OpenAI** API key
+- **Minimax** API key (for voice)
+- **WhatsApp Business** account (optional, for production)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/mama-ai.git
+   cd mama-ai
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   
+   Create a `.env.local` file in the root directory:
+   ```bash
+   # Supabase
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   
+   # OpenAI
+   OPENAI_API_KEY=your_openai_api_key
+   
+   # Minimax (Voice)
+   MINIMAX_API_KEY=your_minimax_api_key
+   MINIMAX_GROUP_ID=your_group_id
+   
+   # WhatsApp (Production)
+   WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+   WHATSAPP_ACCESS_TOKEN=your_access_token
+   WHATSAPP_VERIFY_TOKEN=your_verify_token
+   ```
+
+4. **Set up the database**
+   
+   Run the SQL schema in your Supabase project:
+   ```bash
+   # Copy the contents of schema.sql and run it in Supabase SQL Editor
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open your browser**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
 
@@ -34,262 +149,355 @@ npm start
 
 ```
 mama_ai/
-├── app/
-│   ├── (marketing)/          # Landing Page
-│   │   └── page.tsx           # Main landing page
-│   ├── dashboard/             # Doctor Dashboard
-│   │   ├── layout.tsx         # Dashboard shell with sidebar
-│   │   ├── page.tsx           # Triage board
-│   │   └── patients/          # Patient routes (future)
-│   ├── layout.tsx             # Root layout
-│   └── globals.css            # Global styles
+├── app/                          # Next.js App Router
+│   ├── (marketing)/              # Marketing pages
+│   │   └── page.tsx              # Landing page
+│   ├── dashboard/                # Clinical dashboard
+│   │   ├── page.tsx              # Triage board
+│   │   ├── patients/             # Patient management
+│   │   ├── analytics/            # Analytics & reports
+│   │   └── onboarding/           # Patient onboarding
+│   ├── api/                      # API routes
+│   │   ├── webhook/              # WhatsApp webhook
+│   │   ├── whatsapp/             # WhatsApp utilities
+│   │   └── welcome-audio/        # Audio generation
+│   ├── actions/                  # Server actions
+│   ├── login/                    # Authentication
+│   └── layout.tsx                # Root layout
 │
-├── components/
-│   ├── common/                # Shared (Navigation, Footer)
-│   ├── sections/              # Landing page sections
-│   ├── dashboard/             # Dashboard components
-│   └── ui/                    # Reusable UI (Button, Card)
+├── components/                   # React components
+│   ├── common/                   # Shared components
+│   ├── dashboard/                # Dashboard components
+│   ├── patient/                  # Patient detail components
+│   ├── patient-management/       # Patient list components
+│   ├── sections/                 # Landing page sections
+│   └── ui/                       # Reusable UI primitives
 │
-├── lib/
-│   ├── utils.ts               # Helper functions
-│   ├── constants.ts           # App constants
-│   └── mockData.ts            # Sample dashboard data
+├── lib/                          # Utilities & helpers
+│   ├── constants.ts              # App constants
+│   ├── generateMamaResponse.ts   # AI response generation
+│   ├── transcribe.ts             # Voice transcription
+│   ├── speak.ts                  # Text-to-speech
+│   ├── phoneUtils.ts             # Phone number utilities
+│   └── utils.ts                  # Common helpers
 │
-└── types/
-    └── index.ts               # TypeScript interfaces
+├── types/                        # TypeScript definitions
+│   └── index.ts                  # Shared types
+│
+├── hooks/                        # Custom React hooks
+│   └── use-toast.ts              # Toast notifications
+│
+├── utils/                        # External integrations
+│   └── supabase/                 # Supabase client setup
+│
+├── public/                       # Static assets
+│
+└── schema.sql                    # Database schema
 ```
 
 ---
 
-## 🔗 Routes
+## 🔗 Application Routes
 
-### Landing Page (Marketing)
+### Public Routes
 ```
-/                       → Landing page
-#problem                → Problem section
-#solution               → Solution section
-#how-it-works           → How It Works
-#testimonials           → Testimonials
-#cta                    → Contact form
+/                               → Landing page
+/login                          → Healthcare provider login
+/register                       → Provider registration
 ```
 
-### Dashboard (Clinical)
+### Protected Routes (Dashboard)
 ```
-/dashboard                      → Main triage board
-/dashboard?filter=critical      → Critical patients only
-/dashboard?filter=warning       → Warning patients only
-/dashboard/patients             → Patient monitoring
-/dashboard/patients/[id]        → Individual patient (future)
-/dashboard/analytics            → Analytics (future)
+/dashboard                      → Triage board overview
+/dashboard/patients             → Patient management list
+/dashboard/patients/[id]        → Individual patient profile
+/dashboard/analytics            → Analytics & reports
+/dashboard/onboarding           → Patient onboarding form
+```
+
+### API Routes
+```
+/api/webhook                    → WhatsApp webhook handler
+/api/whatsapp/send              → Send WhatsApp messages
+/api/welcome-audio              → Generate welcome audio
 ```
 
 ---
 
-## ✨ Key Features
+## 💻 Development
 
-### Landing Page
-- **Hero Section**: Real-time monitoring visual with stats
-- **Problem Statement**: Why current care falls short
-- **Solution Showcase**: 4 key features of MamaGuard
-- **How It Works**: 4-step process visualization
-- **Testimonials**: Doctor and patient feedback
-- **CTA Form**: Demo request with proper accessibility
-- **Footer**: Comprehensive site navigation
+### Available Scripts
 
-### Dashboard
-- **Triage Board**: Critical/Warning/Stable categorization
-- **Patient Cards**: AI insights, trends, quick actions
-- **Live Stats**: Real-time count of patients by risk level
-- **Sidebar Navigation**: Easy access to all features
-- **Search**: Find patients by name, ID, or symptoms
-- **AI Filters**: Toggle voice stress & BP monitoring
+```bash
+# Start development server
+npm run dev
 
----
+# Build for production
+npm run build
 
-## 🎨 Design System
+# Start production server
+npm run start
 
-### Marketing Colors
-- Primary: `#11b4d4` (Cyan)
-- Dark Background: `#101f22`
-- Card Dark: `#162a2d`
+# Run linting
+npm run lint
+```
 
-### Clinical Colors
-- Background: `#f8fafc` (Slate 50)
-- Primary: `#0ea5e9` (Sky 500)
-- Danger: `#ef4444` (Red 500)
-- Warning: `#f59e0b` (Amber 500)
-- Success: `#10b981` (Green 500)
+### Code Structure Guidelines
 
-### Typography
-- Font: Inter (Google Fonts)
-- Monospace: Roboto Mono
-- Icons: Material Symbols Outlined
+- **Components**: Keep components small and focused
+- **Server Actions**: Use for data mutations (`app/actions/`)
+- **API Routes**: Only for external webhooks (`app/api/`)
+- **Types**: Centralize shared types in `types/index.ts`
+- **Utilities**: Pure functions in `lib/`
+
+### Testing the WhatsApp Integration
+
+See [WHATSAPP_TESTING_GUIDE.md](WHATSAPP_TESTING_GUIDE.md) for detailed instructions.
 
 ---
 
-## 🔧 Technical Stack
+## 📊 Database Schema
 
-- **Framework**: Next.js 16.1.6
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **Components**: React 19.2.3
-- **Image Optimization**: Next.js `Image`
-- **Utilities**: clsx, tailwind-merge
+### Core Tables
 
----
+- **`patients`** - Patient demographic and medical information
+- **`conversations`** - WhatsApp conversation threads
+- **`messages`** - Individual messages (voice and text)
+- **`symptoms`** - Reported symptoms and severity
+- **`checkups`** - Scheduled and completed appointments
 
-## ♿ Accessibility Features
-
-✅ **Semantic HTML**
-- Proper use of `<nav>`, `<section>`, `<article>`, `<header>`, etc.
-- Meaningful heading hierarchy
-
-✅ **Links vs Buttons**
-- Links (`<a>`) for navigation
-- Buttons (`<button>`) for actions
-
-✅ **Keyboard Navigation**
-- All interactive elements accessible via keyboard
-- Visible focus indicators
-
-✅ **Screen Readers**
-- ARIA labels where needed
-- `sr-only` classes for visual hidden labels
-- Proper alt text for images
-
-✅ **Forms**
-- Labeled inputs (visible or sr-only)
-- Required fields marked
-- Proper input types
+See [schema.sql](schema.sql) for the complete database schema.
 
 ---
 
-## 📱 Responsive Design
+## 🔌 API Integration
 
-- **Mobile** (< 640px): Single column, stacked
-- **Tablet** (640px-1024px): Two columns, simplified
-- **Desktop** (> 1024px): Full features, multi-column
+### WhatsApp Webhook
 
----
+The application receives WhatsApp messages via webhook:
 
-## 📝 Documentation
+```typescript
+// app/api/webhook/route.ts
+POST /api/webhook
+- Verifies WhatsApp webhook token
+- Processes incoming voice/text messages
+- Triggers AI response generation
+- Stores conversation history
+```
 
-1. **PROJECT_STRUCTURE.md** - Complete file organization
-2. **DASHBOARD_README.md** - Dashboard guide
-3. **ACCESSIBILITY_IMPROVEMENTS.md** - A11y checklist
-4. **IMPLEMENTATION_SUMMARY.md** - What we built
+### AI Response Generation
 
----
+```typescript
+// lib/generateMamaResponse.ts
+- Analyzes patient symptoms
+- Assesses risk level
+- Generates contextual responses in Darija
+- Escalates to healthcare providers if needed
+```
 
-## 🚧 Next Steps (Future Development)
+### Voice Processing
 
-### Phase 1: Backend Integration
-- [ ] Connect to real API
-- [ ] Replace mock data
-- [ ] WebSocket for live updates
-- [ ] Authentication system
+```typescript
+// lib/transcribe.ts
+- Converts voice messages to text
+- Supports Darija and French
 
-### Phase 2: Dashboard Features
-- [ ] Patient detail pages
-- [ ] Video call integration
-- [ ] Dispatch workflow
-- [ ] Notification system
-
-### Phase 3: Analytics
-- [ ] Analytics dashboard
-- [ ] Report generation
-- [ ] Data visualization
-- [ ] Export functionality
-
----
-
-## 🧪 Testing Checklist
-
-### Landing Page
-- [x] All sections visible and responsive
-- [x] Navigation links work
-- [x] Form has proper labels
-- [x] Images load correctly
-- [x] Dark mode works
-
-### Dashboard
-- [x] Sidebar navigation functional
-- [x] Patient cards display data
-- [x] Charts render
-- [x] Search UI ready
-- [x] Stats display correctly
-- [x] Responsive on all screens
-
-### Code Quality
-- [x] No TypeScript errors (in dev)
-- [x] Proper semantic HTML
-- [x] Accessible via keyboard
-- [x] Focus indicators visible
-- [x] Links vs buttons used correctly
+// lib/speak.ts
+- Converts text responses to natural speech
+- Uses Minimax TTS API
+```
 
 ---
 
-## 🎉 What Was Accomplished
+## 🚀 Deployment
 
-1. ✅ **Converted vanilla HTML to Next.js** with proper structure
-2. ✅ **Created modular component architecture** (15+ components)
-3. ✅ **Implemented proper routing** with route groups
-4. ✅ **Added TypeScript** for type safety (12 interfaces)
-5. ✅ **Made everything accessible** (WCAG AA compliant)
-6. ✅ **Made it responsive** (mobile, tablet, desktop)
-7. ✅ **Created comprehensive documentation**
-8. ✅ **Set up for scalability** (easy to add features)
+### Vercel (Recommended)
+
+1. **Push your code to GitHub**
+
+2. **Import to Vercel**
+   ```bash
+   # Install Vercel CLI (optional)
+   npm i -g vercel
+   
+   # Deploy
+   vercel
+   ```
+
+3. **Set environment variables** in Vercel dashboard
+
+4. **Configure WhatsApp webhook** to point to your Vercel URL
+   ```
+   https://your-app.vercel.app/api/webhook
+   ```
+
+### Environment Variables
+
+Ensure all required environment variables are set in your deployment platform:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+OPENAI_API_KEY
+MINIMAX_API_KEY
+MINIMAX_GROUP_ID
+WHATSAPP_PHONE_NUMBER_ID
+WHATSAPP_ACCESS_TOKEN
+WHATSAPP_VERIFY_TOKEN
+```
+
+### Build Optimization
+
+- Next.js automatically optimizes images
+- Tailwind CSS purges unused styles
+- TypeScript ensures type safety at build time
 
 ---
 
-## 🏆 Quality Metrics
+## 📚 Documentation
 
-- **Accessibility**: WCAG AA compliant
-- **Performance**: Server-rendered, image optimization
-- **SEO**: Semantic HTML, proper meta tags
-- **Maintainability**: Modular, well-organized
-- **Scalability**: Clear structure for growth
-- **Type Safety**: Full TypeScript coverage
+Additional documentation is available in the following files:
+
+- **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Detailed project organization
+- **[DASHBOARD_README.md](DASHBOARD_README.md)** - Dashboard feature guide
+- **[PATIENT_PROFILE_GUIDE.md](PATIENT_PROFILE_GUIDE.md)** - Patient profile components
+- **[WHATSAPP_TESTING_GUIDE.md](WHATSAPP_TESTING_GUIDE.md)** - WhatsApp integration testing
+- **[ACCESSIBILITY_IMPROVEMENTS.md](ACCESSIBILITY_IMPROVEMENTS.md)** - A11y checklist
+- **[UX_IMPROVEMENTS.md](UX_IMPROVEMENTS.md)** - UX enhancements
+- **[DEMO_SETUP.md](DEMO_SETUP.md)** - Demo environment setup
+
+---
+
+## 🧪 Testing
+
+### Manual Testing
+
+1. **Landing Page**
+   - Test responsive design across devices
+   - Verify all navigation links work
+   - Check form validation
+
+2. **Dashboard**
+   - Test patient filtering and search
+   - Verify risk level categorization
+   - Check quick action buttons
+
+3. **WhatsApp Integration**
+   - Send voice messages
+   - Test symptom reporting
+   - Verify AI responses
+
+### Demo Script
+
+Run the included demo script to test basic functionality:
+
+```bash
+chmod +x test-demo.sh
+./test-demo.sh
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. **Fork the repository**
+
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+
+3. **Make your changes**
+   - Follow TypeScript best practices
+   - Use existing component patterns
+   - Add proper type definitions
+
+4. **Test your changes**
+   ```bash
+   npm run lint
+   npm run build
+   ```
+
+5. **Commit your changes**
+   ```bash
+   git commit -m "Add amazing feature"
+   ```
+
+6. **Push to your branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+
+7. **Open a Pull Request**
+
+### Code Style
+
+- Use **TypeScript** for all new files
+- Follow the existing **component structure**
+- Use **Tailwind CSS** for styling
+- Ensure **accessibility** (ARIA labels, keyboard navigation)
+- Write **descriptive commit messages**
+
+---
+
+## 🔒 Security & Privacy
+
+- **HIPAA Compliance**: Patient data is encrypted at rest and in transit
+- **Authentication**: Supabase Auth with Row Level Security (RLS)
+- **Data Privacy**: No patient data is stored in log files
+- **Secure Communication**: All API calls use HTTPS
+- **Access Control**: Role-based permissions for healthcare providers
+
+---
+
+## 🐛 Known Issues
+
+- **Build Memory**: Production builds may fail on machines with < 4GB RAM
+  - **Solution**: Use development mode or deploy to Vercel/Netlify
+  
+- **WhatsApp Webhook**: Requires public HTTPS endpoint
+  - **Solution**: Use ngrok for local testing or deploy to production
+
+---
+
+## 📝 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👥 Authors
+
+- **Zakaria** - *Initial work*
+
+---
+
+## 🙏 Acknowledgments
+
+- **OpenAI** - GPT-4 conversational AI
+- **Minimax** - Voice synthesis and transcription
+- **Supabase** - Backend infrastructure
+- **Shadcn/ui** - Component library
+- **Vercel** - Deployment platform
+- **Meta** - WhatsApp Business API
 
 ---
 
 ## 📞 Support
 
-If you have questions or need help:
-1. Check the documentation files (PROJECT_STRUCTURE.md, DASHBOARD_README.md)
-2. Review the code comments
-3. Test in dev server: `npm run dev`
+For questions or support:
+
+- 📧 Email: support@mamaguard.com
+- 📖 Documentation: [docs.mamaguard.com](https://docs.mamaguard.com)
+- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/mama-ai/issues)
 
 ---
 
-## 🎓 Key Learnings
-
-1. **Semantic HTML** > divs everywhere
-2. **Links for navigation**, buttons for actions
-3. **Server components** by default (better performance)
-4. **Route groups** organize without affecting URLs
-5. **TypeScript** catches errors early
-6. **Mobile-first** responsive design
-
----
-
-## 🌟 Ready for Production!
-
-The project is:
-- ✅ Professionally structured
-- ✅ Fully accessible
-- ✅ Responsive across all devices
-- ✅ Type-safe
-- ✅ Well-documented
-- ✅ Following Next.js best practices
-- ✅ Ready for backend integration
-
-**Dev Server Running**: http://localhost:3001
-
-**Try it out!**
-- Landing page: http://localhost:3001
-- Dashboard: http://localhost:3001/dashboard
-
----
-
-Made with ❤️ by Cursor AI Assistant
+<div align="center">
+  <p>Made with ❤️ for expectant mothers in Morocco</p>
+  <p>
+    <a href="#top">Back to Top ↑</a>
+  </p>
+</div>
