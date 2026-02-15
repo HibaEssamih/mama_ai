@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { normalizePhone, formatForWhatsApp } from "@/lib/phoneUtils";
 
 export type PatientFormData = {
   fullName: string;
@@ -31,9 +32,9 @@ export type PatientFormData = {
   hasSmartphone: boolean;
 };
 
+// Use centralized phone utility
 function formatPhone(countryCode: string, phone: string): string {
-  const combined = `${countryCode}${phone}`.replace(/\s/g, "");
-  return combined.startsWith("+") ? combined : `+${combined}`;
+  return normalizePhone(phone, countryCode);
 }
 
 /** Map form label to PostgreSQL TIME. Column is type time, not text. */
@@ -120,7 +121,7 @@ export async function registerPatient(
       formData.fullName,
       formData.gestationalWeek || 1
     );
-    const toNumber = phoneNumber.replace(/\D/g, "");
+    const toNumber = formatForWhatsApp(phoneNumber);
     try {
       const waRes = await fetch(
         `https://graph.facebook.com/v18.0/${phoneId}/messages`,

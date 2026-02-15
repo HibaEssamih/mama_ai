@@ -1,13 +1,14 @@
 "use client"; // This can actually be a 'use server' file if placed in a separate actions folder
 
 import { createClient } from "@/utils/supabase/client";
+import { normalizePhone, formatForWhatsApp } from "@/lib/phoneUtils";
 
 export async function registerPatientAction(formData: any) {
   const supabase = createClient();
   
   // 1. Format the phone number correctly
   const cleanPhone = formData.phone.replace(/\s+/g, '');
-  const fullPhone = `${formData.countryCode}${cleanPhone}`.replace('+', '');
+  const fullPhone = normalizePhone(cleanPhone, formData.countryCode);
 
   // 2. Insert into Supabase
   const { data: patient, error: patientError } = await supabase
@@ -55,7 +56,7 @@ Ila 7ssiti b chi haja, goliha liya hna! 🇲🇦`;
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      to: fullPhone,
+      to: formatForWhatsApp(fullPhone),
       message: welcomeMessage
     }),
   });

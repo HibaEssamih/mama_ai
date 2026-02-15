@@ -5,6 +5,7 @@ import { generateClinicalResume } from "@/lib/generateClinicalResume";
 import { analyzeSymptomRisk } from "@/lib/symptoms";
 import { transcribeAudio } from "@/lib/transcribe";
 import { generateSpeech } from "@/lib/speak";
+import { normalizePhone, formatForWhatsApp } from "@/lib/phoneUtils";
 
 const SUPABASE_PROJECT_URL_REGEX = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?/;
 
@@ -63,18 +64,21 @@ async function processMessageInBackground(body: any) {
 
     if (existingMsg) return;
 
+    // Normalize phone number to match stored format (with +)
+    const normalizedPhone = normalizePhone(senderPhone);
+
     // Find patient by phone
     const { data: patient } = await supabase
       .from("patients")
       .select("*")
-      .eq("phone_number", senderPhone)
+      .eq("phone_number", normalizedPhone)
       .maybeSingle();
 
     let currentPatient = patient;
     if (!currentPatient) {
       const { data: newP } = await supabase
         .from("patients")
-        .insert({ phone_number: senderPhone, name: "New Mother", risk_level: "low" })
+        .insert({ phone_number: normalizedPhone, name: "New Mother", risk_level: "low" })
         .select().single();
       currentPatient = newP;
     }
@@ -179,7 +183,7 @@ async function processMessageInBackground(body: any) {
         headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           messaging_product: "whatsapp",
-          to: senderPhone,
+          to: formatForWhatsApp(normalizedPhone),
           text: { body: aiResponse },
         }),
       });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { generateMamaResponse } from "@/lib/generateMamaResponse";
+import { formatForWhatsApp } from "@/lib/phoneUtils";
 
 export async function GET(req: Request) {
   // 1. Check for a Secret Header to prevent unauthorized calls
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
-        to: patient.phone_number,
+        to: formatForWhatsApp(patient.phone_number),
         type: "text",
         text: { body: message },
       }),

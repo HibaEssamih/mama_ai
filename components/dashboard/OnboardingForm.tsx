@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner" // Optional: recommended for hackathons
+import { normalizePhone } from "@/lib/phoneUtils"
 
 const patientSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -31,17 +32,9 @@ const patientSchema = z.object({
     .min(1, "Phone number is required")
     .regex(/^[\d\s+\-()]+$/, "Enter a valid phone number"),
   due_date: z.string().min(1, "Due date is required"),
-  gestational_week: z.coerce
-    .number()
-    .int()
-    .min(1, "Must be at least 1")
-    .max(42, "Must be at most 42"),
+  gestational_week: z.number().int().min(1, "Must be at least 1").max(42, "Must be at most 42"),
   chronic_conditions: z.string().optional(),
-  previous_c_sections: z.coerce
-    .number()
-    .int()
-    .min(0, "Must be 0 or more")
-    .default(0),
+  previous_c_sections: z.number().int().min(0, "Must be 0 or more"),
 })
 
 type PatientFormValues = z.infer<typeof patientSchema>
@@ -49,7 +42,7 @@ type PatientFormValues = z.infer<typeof patientSchema>
 export function OnboardingForm() {
   const [isSuccess, setIsSuccess] = useState(false)
   
-  const form = useForm<PatientFormValues>({
+  const form = useForm({
     resolver: zodResolver(patientSchema),
     defaultValues: {
       name: "",
@@ -68,7 +61,7 @@ export function OnboardingForm() {
     // Flattened the insert to match your SQL schema columns
     const { error } = await supabase.from("patients").insert({
       name: values.name.trim(),
-      phone_number: values.phone_number.trim().replace(/\s/g, ""),
+      phone_number: normalizePhone(values.phone_number),
       due_date: values.due_date,
       gestational_week: values.gestational_week,
       // If your DB has a JSONB medical_history column, use this:
