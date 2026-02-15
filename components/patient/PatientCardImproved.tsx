@@ -133,7 +133,7 @@ export function PatientCardImproved({
             {patientName}
           </h3>
           <p className="text-[11px] font-medium text-slate-500 truncate mt-1">
-            ID: {patient.national_id ?? `MG-${patient.id.slice(0, 6).toUpperCase()}`} • Age {calculateAge(patient.date_of_birth ?? undefined)}
+            Age {calculateAge(patient.date_of_birth ?? undefined)}
           </p>
         </div>
       </div>

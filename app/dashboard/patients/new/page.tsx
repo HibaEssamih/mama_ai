@@ -57,7 +57,7 @@ export default function NewPatientPage() {
   const [formData, setFormData] = useState<PatientFormData>({
     fullName: "",
     dateOfBirth: "",
-    nationalId: "",
+    nationalId: "N/A",
     phone: "",
     countryCode: "+212",
     isWhatsApp: true,
@@ -160,7 +160,7 @@ export default function NewPatientPage() {
                         ? 'opacity-75 cursor-pointer hover:opacity-100'
                         : 'opacity-60'
                     }`}
-                    onClick={isCompleted ? () => setCurrentStep(step.number) : undefined}
+                    onClick={isCompleted ? () => setCurrentStep(step.number as RegistrationStep) : undefined}
                     role={isCompleted ? 'button' : undefined}
                   >
                     <div className="flex flex-col items-center gap-1">
@@ -336,28 +336,6 @@ function StepPersonalInfo({ formData, onChange }: StepProps) {
             onChange={(e) => onChange("dateOfBirth", e.target.value)}
             required
           />
-        </div>
-
-        {/* National ID */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="nationalId">
-            National ID / Passport <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              className="block w-full rounded-lg border-slate-300 focus:border-teal-500 focus:ring-teal-500 text-sm py-2.5 px-3 pr-10"
-              id="nationalId"
-              name="nationalId"
-              placeholder="XXX-XXXXX-XX"
-              type="text"
-              value={formData.nationalId}
-              onChange={(e) => onChange("nationalId", e.target.value)}
-              required
-            />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="material-symbols-outlined text-slate-400 text-[18px]">badge</span>
-            </div>
-          </div>
         </div>
 
         {/* Phone Number */}
