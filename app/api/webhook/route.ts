@@ -4,26 +4,16 @@ import { generateMamaResponse } from "@/lib/generateMamaResponse";
 import { generateClinicalResume } from "@/lib/generateClinicalResume";
 import { analyzeSymptomRisk } from "@/lib/symptoms";
 import { transcribeAudio } from "@/lib/transcribe";
-import { generateSpeech } from "@/lib/speak";
+import { generateSpeech } from "@/lib/speak"; 
 import { normalizePhone, formatForWhatsApp } from "@/lib/phoneUtils";
 
-const SUPABASE_PROJECT_URL_REGEX = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?/;
-
-/**
- * Background processor handles the Patient's incoming message:
- * 1. Transcribes if audio
- * 2. Saves to DB as role: "user"
- * 3. Updates risk status/alerts
- * 4. Generates and sends AI response
- */
 async function processMessageInBackground(body: any) {
   const supabase = await createClient();
   
   try {
     const entry = body.entry?.[0];
-    const change = entry?.changes?.[0];
-    const messageObj = change?.value?.messages?.[0];
-
+    const value = entry?.changes?.[0]?.value;
+    const messageObj = value?.messages?.[0];
     if (!messageObj) return;
 
     const senderPhone = messageObj.from;
@@ -31,23 +21,23 @@ async function processMessageInBackground(body: any) {
     const isAudio = messageObj.type === "audio";
     let userText = "";
 
-    // --- 1. HANDLE PATIENT INPUT (Audio or Text) ---
+    console.log(`[Webhook] New message from ${senderPhone}. Type: ${messageObj.type}`);
+
+    // --- 1. TRANSCRIPTION (If Audio) ---
     if (isAudio) {
-      try {
-        const audioId = messageObj.audio?.id;
-        const token = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
-        const mediaRes = await fetch(`https://graph.facebook.com/v18.0/${audioId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const mediaData = await mediaRes.json();
-        
-        if (mediaData.url) {
-          const fileRes = await fetch(mediaData.url, { headers: { Authorization: `Bearer ${token}` } });
-          const buffer = Buffer.from(await fileRes.arrayBuffer());
-          userText = await transcribeAudio(buffer); // Save transcription for DB
-        }
-      } catch (err) {
-        console.error("[Webhook] Transcription failed:", err);
+      console.log("[Audio Debug] Processing incoming audio...");
+      const audioId = messageObj.audio?.id;
+      const token = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
+      const mediaRes = await fetch(`https://graph.facebook.com/v18.0/${audioId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const mediaData = await mediaRes.json();
+      
+      if (mediaData.url) {
+        const fileRes = await fetch(mediaData.url, { headers: { Authorization: `Bearer ${token}` } });
+        const buffer = Buffer.from(await fileRes.arrayBuffer());
+        userText = await transcribeAudio(buffer); 
+        console.log(`[Audio Debug] Transcription result: "${userText}"`);
       }
     } else {
       userText = messageObj.text?.body ?? "";
@@ -55,169 +45,119 @@ async function processMessageInBackground(body: any) {
 
     if (!userText.trim()) return;
 
-    // --- 2. DEDUPLICATION & PATIENT FETCH ---
-    const { data: existingMsg } = await supabase
-      .from("messages")
-      .select("id")
-      .filter("metadata->>wamid", "eq", wamid)
-      .maybeSingle();
-
-    if (existingMsg) return;
-
-    // Normalize phone number to match stored format (with +)
+    // --- 2. CONTEXT & RISK ---
     const normalizedPhone = normalizePhone(senderPhone);
-
-    // Find patient by phone
-    const { data: patient } = await supabase
-      .from("patients")
-      .select("*")
-      .eq("phone_number", normalizedPhone)
-      .maybeSingle();
-
-    let currentPatient = patient;
-    if (!currentPatient) {
-      const { data: newP } = await supabase
-        .from("patients")
-        .insert({ phone_number: normalizedPhone, name: "New Mother", risk_level: "low" })
-        .select().single();
-      currentPatient = newP;
+    const { data: patient } = await supabase.from("patients").select("*").eq("phone_number", normalizedPhone).maybeSingle();
+    if (!patient) {
+        console.log("[Webhook] Patient not found in DB.");
+        return;
     }
 
-    // Ensure Conversation exists
-    let { data: conv } = await supabase
-      .from("conversations")
-      .select("id")
-      .eq("patient_id", currentPatient.id)
-      .maybeSingle();
-
+    let { data: conv } = await supabase.from("conversations").select("id").eq("patient_id", patient.id).maybeSingle();
     if (!conv) {
-      const { data: newC } = await supabase
-        .from("conversations")
-        .insert({ patient_id: currentPatient.id })
-        .select().single();
+      const { data: newC } = await supabase.from("conversations").insert({ patient_id: patient.id }).select().single();
       conv = newC;
     }
 
-    // --- 3. RISK ANALYSIS & DB SAVE (AS PATIENT/USER) ---
     const risk = analyzeSymptomRisk(userText);
-    
-    // Save the Patient's message (The "User" role)
-    const { data: savedPatientMsg } = await supabase
-      .from("messages")
-      .insert({
-        conversation_id: conv!.id,
-        role: "user", // Correctly save as patient
-        content: userText,
-        metadata: { wamid, risk: risk.urgency, source: isAudio ? "voice_note" : "text" }
-      })
-      .select().single();
 
-    // Update risk and last_resume; clinical_resume is updated below after we have full context
-    const stateResume = `Check-in: ${new Date().toLocaleDateString()} - AI detected: ${risk.symptom || 'Normal update'}. Urgency: ${risk.urgency}`;
-    const existingMedicalHistory = typeof currentPatient.medical_history === "object" && currentPatient.medical_history
-      ? { ...currentPatient.medical_history }
-      : {};
-
-    await supabase.from("patients").update({
-      risk_level: risk.urgency,
-      medical_history: { ...existingMedicalHistory, last_resume: stateResume },
-    }).eq("id", currentPatient.id);
-
-    // Trigger alert record for high/critical
-    if (risk.urgency === "high" || risk.urgency === "critical") {
-      await supabase.from("alerts").insert({
-        patient_id: currentPatient.id,
-        message_id: savedPatientMsg!.id,
-        urgency: risk.urgency,
-        symptom_name: risk.symptom
-      });
-    }
-
-    // --- 3b. AI clinical resume for doctors (persisted in medical_history.clinical_resume) ---
-    try {
-      const { data: resumeHistory } = await supabase
-        .from("messages")
-        .select("role, content")
-        .eq("conversation_id", conv!.id)
-        .order("created_at", { ascending: true })
-        .limit(20);
-      const transcript = resumeHistory
-        ? resumeHistory.map((m) => `${m.role}: ${m.content}`).join("\n")
-        : "";
-      const clinicalResume = await generateClinicalResume({
-        gestational_week: currentPatient.gestational_week,
-        risk_level: risk.urgency,
-        conversationTranscript: transcript,
-      });
-      const medicalWithResume = { ...existingMedicalHistory, clinical_resume: clinicalResume };
-      await supabase.from("patients").update({ medical_history: medicalWithResume }).eq("id", currentPatient.id);
-    } catch (err) {
-      console.error("[Webhook] Clinical resume generation failed:", err);
-    }
-
-    // --- 4. FETCH CONTEXT & GENERATE AI RESPONSE ---
-    const { data: history } = await supabase
-      .from("messages")
-      .select("role, content")
-      .eq("conversation_id", conv!.id)
-      .order("created_at", { ascending: false })
-      .limit(5);
-
-    const historyString = history ? [...history].reverse().map(m => `${m.role}: ${m.content}`).join("\n") : "";
-
+    // --- 3. GENERATE AI TEXT RESPONSE ---
     const aiResponse = await generateMamaResponse(userText, {
-      name: currentPatient.full_name || currentPatient.name,
+      name: patient.full_name || patient.name,
       risk_level: risk.urgency,
-      gestational_week: currentPatient.gestational_week,
-      chat_history: historyString,
+      gestational_week: patient.gestational_week,
     });
 
-    // --- 5. SEND TO WHATSAPP & SAVE AI REPLY ---
     const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
     const token = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
 
     if (phoneId && token) {
-      // Send text reply to patient
-      await fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          to: formatForWhatsApp(normalizedPhone),
-          text: { body: aiResponse },
-        }),
-      });
+      // --- 4. SEND TEXT IMMEDIATELY ---
+      console.log("[Webhook] Sending text response first...");
+      await sendTextWhatsapp(phoneId, token, normalizedPhone, aiResponse);
+
+      // --- 5. GENERATE & SEND AUDIO IN BACKGROUND ---
+      if (isAudio) {
+        console.log("[Audio Debug] Starting ElevenLabs TTS generation...");
+        try {
+          const audioBuffer = await generateSpeech(aiResponse);
+          console.log(`[Audio Debug] TTS Buffer generated. Size: ${audioBuffer.length} bytes`);
+
+          const fileName = `replies/${conv!.id}/${Date.now()}.mp3`;
+          
+          console.log("[Audio Debug] Uploading to Supabase Storage...");
+          const { data: upload, error: uploadErr } = await supabase.storage
+            .from("patient-voice-notes")
+            .upload(fileName, audioBuffer, { contentType: "audio/mpeg", upsert: true });
+
+          if (uploadErr) {
+              console.error("[Audio Debug] Supabase Storage Upload Error:", uploadErr);
+              throw uploadErr;
+          }
+
+          if (upload) {
+            const { data: publicUrlData } = supabase.storage.from("patient-voice-notes").getPublicUrl(fileName);
+            const voiceUrl = publicUrlData.publicUrl;
+            console.log("[Audio Debug] Public URL generated:", voiceUrl);
+            
+            console.log("[Audio Debug] Sending audio message to WhatsApp API...");
+            const whatsappRes = await fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
+              method: "POST",
+              headers: { 
+                  "Authorization": `Bearer ${token}`, 
+                  "Content-Type": "application/json" 
+              },
+              body: JSON.stringify({
+                messaging_product: "whatsapp",
+                to: formatForWhatsApp(normalizedPhone),
+                type: "audio",
+                audio: { link: voiceUrl },
+              }),
+            });
+
+            const waResult = await whatsappRes.json();
+            if (!whatsappRes.ok) {
+                console.error("[Audio Debug] WhatsApp Media API rejected the audio link:", waResult);
+            } else {
+                console.log("[Audio Debug] ✅ Audio message sent successfully!");
+            }
+          }
+        } catch (err) {
+          console.error("[Audio Debug] ❌ Delayed Audio Pipeline Failed:", err);
+        }
+      }
     }
 
-    // Save the AI's response to DB (role: assistant)
-    await supabase.from("messages").insert({
-      conversation_id: conv!.id,
-      role: "assistant",
-      content: aiResponse
-    });
+    // --- 6. UPDATE DB ---
+    Promise.all([
+      supabase.from("messages").insert({ conversation_id: conv!.id, role: "assistant", content: aiResponse }),
+      generateClinicalResume({
+        gestational_week: patient.gestational_week,
+        risk_level: risk.urgency,
+        conversationTranscript: userText,
+      }).then(resume => 
+        supabase.from("patients").update({ 
+          risk_level: risk.urgency,
+          medical_history: { ...patient.medical_history, clinical_resume: resume }
+        }).eq("id", patient.id)
+      )
+    ]);
 
   } catch (error) {
     console.error("🔥 Webhook Background Error:", error);
   }
 }
 
-export async function POST(request: NextRequest) {
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return new NextResponse("Invalid JSON", { status: 400 });
-  }
-
-  const isMessage = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-
-  if (isMessage) {
-    // Return 200 OK immediately so Meta doesn't timeout
-    processMessageInBackground(body);
-    return new NextResponse(null, { status: 200 });
-  }
-
-  return new NextResponse(null, { status: 200 });
+async function sendTextWhatsapp(phoneId: string, token: string, to: string, text: string) {
+  return fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to: formatForWhatsApp(to),
+      text: { body: text },
+    }),
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -226,4 +166,19 @@ export async function GET(request: NextRequest) {
     return new NextResponse(searchParams.get("hub.challenge"), { status: 200 });
   }
   return new NextResponse("Forbidden", { status: 403 });
+}
+
+export async function POST(request: NextRequest) {
+  let body;
+  try {
+    body = await request.json();
+  } catch (error) {
+    return new NextResponse("Invalid JSON", { status: 400 });
+  }
+  const isMessage = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+  if (isMessage) {
+    processMessageInBackground(body);
+    return new NextResponse("EVENT_RECEIVED", { status: 200 });
+  }
+  return new NextResponse("NOT_A_MESSAGE", { status: 200 });
 }
