@@ -205,7 +205,7 @@ export function PatientDetailClient({
                   </div>
                   <div className="flex-1">
                     <h2 className="text-sm font-bold text-blue-900 mb-1 flex items-center gap-2">
-                      Today's Summary
+                      Today&apos;s Summary
                       <span className="text-xs font-normal text-blue-600">
                         ({new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })})
                       </span>

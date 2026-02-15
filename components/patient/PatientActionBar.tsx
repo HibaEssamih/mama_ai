@@ -12,7 +12,7 @@ interface PatientActionBarProps {
 
 export default function PatientActionBar({
   patientName,
-  patientId,
+  patientId, // eslint-disable-line @typescript-eslint/no-unused-vars
   onMarkResolved,
   onSchedule,
   onEscalate

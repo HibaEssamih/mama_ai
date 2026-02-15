@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { registerPatient } from "@/app/actions/patients";
 
 // ============================================================================
@@ -84,7 +83,7 @@ export default function NewPatientPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = useCallback((field: keyof PatientFormData, value: any) => {
+  const handleInputChange = useCallback((field: keyof PatientFormData, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
@@ -148,7 +147,6 @@ export default function NewPatientPage() {
               {steps.map((step, index) => {
                 const isActive = currentStep === step.number;
                 const isCompleted = currentStep > step.number;
-                const isDisabled = currentStep < step.number;
 
                 return (
                   <div
@@ -213,7 +211,7 @@ export default function NewPatientPage() {
                   Welcome to MamaGuard Enrollment
                 </h3>
                 <p className="text-sm text-blue-600 mt-1">
-                  Please ensure all identification details match the patient's national documents exactly to prevent record duplication.
+                  Please ensure all identification details match the patient&apos;s national documents exactly to prevent record duplication.
                 </p>
               </div>
             </div>
@@ -292,7 +290,7 @@ export default function NewPatientPage() {
 
 interface StepProps {
   formData: PatientFormData;
-  onChange: (field: keyof PatientFormData, value: any) => void;
+  onChange: (field: keyof PatientFormData, value: string | number | boolean) => void;
 }
 
 function StepPersonalInfo({ formData, onChange }: StepProps) {
@@ -795,7 +793,7 @@ function StepMonitoringSetup({ formData, onChange }: StepProps) {
             <div>
               <h4 className="text-sm font-semibold text-teal-900">Ready to Complete</h4>
               <p className="text-xs text-teal-700 mt-1">
-                Click "Complete Registration" to add this patient to your monitoring dashboard. An SMS welcome message will be sent automatically.
+                Click &ldquo;Complete Registration&rdquo; to add this patient to your monitoring dashboard. An SMS welcome message will be sent automatically.
               </p>
             </div>
           </div>

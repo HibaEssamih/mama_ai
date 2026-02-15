@@ -1,6 +1,7 @@
 export async function transcribeAudio(audioBuffer: Buffer): Promise<string> {
     const formData = new FormData();
-    const blob = new Blob([audioBuffer], { type: 'audio/ogg' });
+    const arrayBuffer = audioBuffer.buffer.slice(audioBuffer.byteOffset, audioBuffer.byteOffset + audioBuffer.byteLength) as ArrayBuffer;
+    const blob = new Blob([arrayBuffer], { type: 'audio/ogg' });
     formData.append('file', blob, 'audio.ogg');
     formData.append('model', 'whisper-1');
     formData.append('language', 'ar'); // Helps Whisper understand Darija/Arabic better

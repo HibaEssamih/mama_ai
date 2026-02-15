@@ -1,10 +1,12 @@
+import Link from "next/link";
+
 export default function Navigation() {
   return (
     <nav className="fixed w-full z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <a
+          <Link
             href="/"
             className="flex-shrink-0 flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary rounded-lg px-1"
           >
@@ -14,7 +16,7 @@ export default function Navigation() {
             <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
               Mama<span className="text-primary">Guard</span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">

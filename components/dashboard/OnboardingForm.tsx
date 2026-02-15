@@ -22,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { toast } from "sonner" // Optional: recommended for hackathons
 import { normalizePhone } from "@/lib/phoneUtils"
 
 const patientSchema = z.object({

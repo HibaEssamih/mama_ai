@@ -32,7 +32,7 @@ export interface Patient {
   has_smartphone: boolean;
 }
 
-export interface VitalSign {
+export interface VitalSignRecord {
   id: string;
   patientId: string;
   timestamp: Date;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { Patient } from "@/types";
 
 const RISK_CONFIG = {
@@ -116,9 +117,11 @@ export function PatientCardImproved({
       <div className="flex items-center gap-3.5 mb-4 mt-1 h-14">
         <div className="relative flex-shrink-0">
           {!imageError ? (
-            <img 
+            <Image 
               src={avatarUrl} 
               alt={`${patientName} avatar`}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-full shadow-sm ring-2 ring-white object-cover bg-white"
               onError={() => setImageError(true)}
             />

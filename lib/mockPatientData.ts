@@ -1,6 +1,6 @@
 import type { 
   PatientProfile, 
-  VitalSign, 
+  VitalSign,
   ClinicalHistoryItem, 
   VoiceMessage, 
   EmergencyContact,

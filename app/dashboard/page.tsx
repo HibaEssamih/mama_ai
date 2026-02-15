@@ -2,15 +2,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-  mockCriticalPatients,
-  mockWarningPatients,
-  mockDoctor,
-} from "@/lib/mockData";
+import { createClient } from "@/utils/supabase/client";
+import { mockDoctor } from "@/lib/mockData";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -48,6 +44,32 @@ interface DashboardState {
   isRefreshing: boolean;
 }
 
+interface Patient {
+  id: string;
+  phone_number: string;
+  full_name: string;
+  name?: string;
+  due_date: string | null;
+  gestational_week: number | null;
+  risk_level: string;
+  language: string;
+  medical_history: Record<string, unknown> | null;
+  created_at: string;
+  date_of_birth: string | null;
+  national_id: string | null;
+  location_address: string | null;
+  trimester: number | null;
+  blood_type: string | null;
+  previous_pregnancies: number | null;
+  current_medications: string | null;
+  allergies: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_relation: string | null;
+  emergency_contact_phone: string | null;
+  preferred_checkup_time: string | null;
+  has_smartphone: boolean | null;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
 
@@ -58,10 +80,71 @@ export default function DashboardPage() {
   });
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Helper functions (defined before useMemo to avoid initialization errors)
+  const getTimeAgo = (createdAt: string) => {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffInMinutes = Math.floor((now.getTime() - created.getTime()) / 60000);
+    
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
+  const getPatientAlert = (patient: Patient) => {
+    if (patient.risk_level === "critical") {
+      return {
+        type: "High Risk",
+        category: "Critical Alert",
+        message: `Patient requires immediate attention. Risk level: ${patient.risk_level}`,
+      };
+    }
+    if (patient.risk_level === "warning" || patient.risk_level === "high") {
+      return {
+        type: "Warning",
+        category: "Monitoring Required",
+        message: `Patient requires close monitoring. Risk level: ${patient.risk_level}`,
+      };
+    }
+    return null;
+  };
+
+  const getPatientMetrics = (patient: Patient) => {
+    const metrics = [];
+    if (patient.gestational_week) {
+      metrics.push({
+        label: "Gestational Week",
+        value: `Week ${patient.gestational_week}`,
+        trend: "stable" as const,
+      });
+    }
+    return metrics;
+  };
 
   const allPatients = useMemo(
-    () => [...mockCriticalPatients, ...mockWarningPatients],
-    [],
+    () => patients.map((p, index) => {
+      // Realistic avatar images for demo purposes
+      const avatarImages = [
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuDOD_FtHE_M2MnQU5X4ENnkwxe6hDrAzl0WEzGP3ROfYIX4RTvu05KGJtfc2JNIaSxMsopffKRrtJd17CbwGc5paeJiH2ESWNlsvLnn0fuXpS2jKHx6NWovLH1J3hyz0iewgw_Q4ZXKcESi5SPC5k1ing_7al3jEoo7E45aFqqFTjuVJs60wM5TPlSaF1dHWyFcm8Y_SMPjcOs8HmHjlS8Rv7UWtPJFrUahyMZPjATcUF51G8NpXDE2pJWUPfl2xQmqZkgkJ4r_gSA8",
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuCh95iRRavtH6vO_F9a2ks_UaduvZWXRbS3-pn9HsjTt7RNWaD0Ac4bgMhpk0vOmRtLK0ouSwI5WD8lhQxNNiuoXfjJMDsR_cHkOvQk1ViBj_yStsbzGkV_oEoYD9lO5hHZdH9mTljxV8Zs691IFvdFSsH-DALjojxQ32DUFyB8q11QWiX8plCN2bh-2KsMP4sTriDpNGUTU4hduGawYU6MZGTqAifdZFXRGYwAv8LehM1MGUgdzGFeaP9V8Ryr8k5E9ZZoSMEKFWBZ",
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuCrr2OmyxEYYpd39R10VC2g2BluTHskDpx3dFNpJhg6xfOBm25j3r-lMH_2uvDYhfwgELfA5g7Q77Q-FCBlGcf01W5mfuWhTvHtyvb7OCd1rzTjYOUMiBAW3Lxpoh1vN88jM9nIeaswUaoU9iY_P4Hm4RTBtPVjnqAqK0X1TLWENaehRGISfuFYHt7IPtRLZttdrr644XWmZYC-bT-VlZ-gIjhfwebF57y4yGi2zBg1Gz_JG5B_wgtaBwvv8dSyPSsUbJtcQrNV8dGX",
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuCvcpSPrAUDRWPxtw1PsiiuoP_0lsTIMybfpbF439klcZ5u75lGzcrD60nsAcbiNKT8FH1xs8KOcRXZQSU7aBLaDiM4ir5UJsxmiD8Fb5grxu9oznRzsXpyiVBmN_IVhPo66vZuXLAbPXbSDzvNtZjaOyQbuKZM2mZVe_jserlVfU1mbeGchLoITuxb4KW7lV60RjJ3Yg97U1mX4zRe3bcvm2wfNhZ4UoG-o0qAVmfCfwiGRH9Lb57CKw7Ky6Nbq7L6VPzvxrbRmEll",
+      ];
+      
+      return {
+        ...p,
+        name: p.full_name || p.name || "Unknown",
+        lastUpdate: getTimeAgo(p.created_at),
+        alert: getPatientAlert(p),
+        metrics: getPatientMetrics(p),
+        trendData: [50, 45, 48, 40, 35, 38, 25, 20, 15, 10, 5],
+        avatarUrl: avatarImages[index % avatarImages.length],
+      };
+    }),
+    [patients],
   );
 
   const filteredPatients = useMemo(() => {
@@ -83,10 +166,31 @@ export default function DashboardPage() {
     return patients;
   }, [allPatients, state.searchQuery, state.filterType]);
 
+  const fetchPatients = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("patients")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching patients:", error);
+        return;
+      }
+
+      setPatients(data || []);
+    } catch (error) {
+      console.error("Error fetching patients:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleRefresh = async () => {
     if (state.isRefreshing) return;
     setState((prev) => ({ ...prev, isRefreshing: true }));
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await fetchPatients();
     setState((prev) => ({ ...prev, isRefreshing: false }));
   };
 
@@ -117,6 +221,7 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    fetchPatients();
     const interval = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(interval);
   }, []);
@@ -125,6 +230,17 @@ export default function DashboardPage() {
     hour: "numeric",
     minute: "2-digit",
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-600 font-medium">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100/50 to-white">
@@ -144,8 +260,7 @@ export default function DashboardPage() {
             <p className="text-sm text-slate-600">
               {formattedTime} • {filteredPatients.length} active patients •{" "}
               {
-                mockCriticalPatients.filter((p) => filteredPatients.includes(p))
-                  .length
+                patients.filter((p) => p.risk_level === "critical").length
               }{" "}
               critical
             </p>
@@ -238,7 +353,7 @@ export default function DashboardPage() {
               <div className="flex items-end justify-between">
                 <div>
                   <div className="text-3xl font-bold text-red-600">
-                    {mockCriticalPatients.length}
+                    {patients.filter((p) => p.risk_level === "critical").length}
                   </div>
                   <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
                     <Zap className="h-3 w-3" />
@@ -248,12 +363,12 @@ export default function DashboardPage() {
                 <div className="text-right">
                   <div className="text-xs font-semibold text-red-600">
                     {
-                      mockCriticalPatients.filter((p) =>
-                        p.lastUpdate.includes("m"),
+                      patients.filter((p) =>
+                        p.risk_level === "critical",
                       ).length
                     }
                   </div>
-                  <div className="text-xs text-red-600/70">recent</div>
+                  <div className="text-xs text-red-600/70">total</div>
                 </div>
               </div>
             </CardContent>
@@ -274,7 +389,7 @@ export default function DashboardPage() {
               <div className="flex items-end justify-between">
                 <div>
                   <div className="text-3xl font-bold text-amber-600">
-                    {mockWarningPatients.length}
+                    {patients.filter((p) => p.risk_level === "warning" || p.risk_level === "high").length}
                   </div>
                   <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -283,9 +398,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs font-semibold text-amber-600">
-                    24h
+                    {patients.filter((p) => p.risk_level === "medium").length}
                   </div>
-                  <div className="text-xs text-amber-600/70">avg response</div>
+                  <div className="text-xs text-amber-600/70">medium risk</div>
                 </div>
               </div>
             </CardContent>
@@ -364,14 +479,14 @@ export default function DashboardPage() {
                     className="gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white"
                   >
                     <AlertCircle className="h-3.5 w-3.5" />
-                    Critical ({mockCriticalPatients.length})
+                    Critical ({patients.filter((p) => p.risk_level === "critical").length})
                   </TabsTrigger>
                   <TabsTrigger
                     value="warning"
                     className="gap-2 data-[state=active]:bg-amber-600 data-[state=active]:text-white"
                   >
                     <AlertTriangle className="h-3.5 w-3.5" />
-                    Warning ({mockWarningPatients.length})
+                    Warning ({patients.filter((p) => p.risk_level === "warning" || p.risk_level === "high").length})
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -440,14 +555,18 @@ export default function DashboardPage() {
                           {patient.name}
                         </CardTitle>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <CardDescription className="text-xs">
-                            {patient.id}
-                          </CardDescription>
-                          <span className="text-xs text-slate-400">•</span>
                           <span className="text-xs text-slate-600 flex items-center gap-1">
                             <Heart className="h-3 w-3" />
                             Week {patient.gestational_week}
                           </span>
+                          {patient.trimester && (
+                            <>
+                              <span className="text-xs text-slate-400">•</span>
+                              <span className="text-xs text-slate-500">
+                                Trimester {patient.trimester}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -500,10 +619,10 @@ export default function DashboardPage() {
                               : "text-amber-700"
                           }`}
                         >
-                          {patient.alert.category}
+                          {patient.alert?.category || "Alert"}
                         </div>
                         <p className="text-xs text-slate-700 leading-relaxed">
-                          {patient.alert.message}
+                          {patient.alert?.message || "Requires attention"}
                         </p>
                       </div>
                     </div>

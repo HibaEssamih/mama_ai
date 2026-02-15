@@ -4,10 +4,7 @@ import { generateMamaResponse } from "@/lib/generateMamaResponse";
 import { generateClinicalResume } from "@/lib/generateClinicalResume";
 import { analyzeSymptomRisk } from "@/lib/symptoms";
 import { transcribeAudio } from "@/lib/transcribe";
-import { generateSpeech } from "@/lib/speak";
 import { normalizePhone, formatForWhatsApp } from "@/lib/phoneUtils";
-
-const SUPABASE_PROJECT_URL_REGEX = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?/;
 
 /**
  * Background processor handles the Patient's incoming message:
@@ -16,6 +13,7 @@ const SUPABASE_PROJECT_URL_REGEX = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?/;
  * 3. Updates risk status/alerts
  * 4. Generates and sends AI response
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function processMessageInBackground(body: any) {
   const supabase = await createClient();
   

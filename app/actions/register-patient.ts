@@ -3,7 +3,39 @@
 import { createClient } from "@/utils/supabase/client";
 import { normalizePhone, formatForWhatsApp } from "@/lib/phoneUtils";
 
-export async function registerPatientAction(formData: any) {
+interface PatientFormData {
+  phone: string;
+  countryCode: string;
+  fullName: string;
+  dateOfBirth: string;
+  nationalId: string;
+  locationAddress: string;
+  languagePreference: string;
+  dueDate: string;
+  bloodType: string;
+  previousPregnancies: number;
+  currentMedications?: string;
+  allergies?: string;
+  emergencyContactName: string;
+  emergencyContactRelation: string;
+  emergencyContactPhone: string;
+  spousePartnerName?: string;
+  spousePartnerPhone?: string;
+  preferredCheckupTime?: string;
+  voiceReportingFrequency?: string;
+  hasSmartphone?: boolean;
+  gestational_week?: number;
+  isWhatsApp?: boolean;
+  alternativePhone?: string;
+  location?: string;
+  gestationalWeek?: number;
+  trimester?: number;
+  lastMenstrualPeriod?: string;
+  expectedDueDate?: string;
+  medicalHistory?: string;
+}
+
+export async function registerPatientAction(formData: PatientFormData) {
   const supabase = createClient();
   
   // 1. Format the phone number correctly
@@ -52,7 +84,7 @@ Ana Mama AI, l-moussa3ida dyalk f l-7aml. Dr. Emily Chen tsjlatk m3ana l-youm.
 Nti daba f l-osbou3 ${formData.gestational_week}. Ghadi nbqa nti3lk l-akhbar dima bach n-t'amno 3lik. 
 Ila 7ssiti b chi haja, goliha liya hna! 🇲🇦`;
 
-  const waRes = await fetch("/api/whatsapp/send", {
+  await fetch("/api/whatsapp/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
